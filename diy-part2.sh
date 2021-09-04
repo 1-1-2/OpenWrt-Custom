@@ -36,10 +36,13 @@ EOF
 cat >> .config <<EOF
 # ----------luci-app-accesscontrol
 # CONFIG_PACKAGE_luci-app-accesscontrol is not set
+# ----------luci-app-adguardhome
+# CONFIG_PACKAGE_luci-app-adguardhome_INCLUDE_binary is not set
 # ----------luci-app-diskman
 # CONFIG_PACKAGE_luci-app-diskman_INCLUDE_btrfs_progs is not set
 # CONFIG_PACKAGE_luci-app-diskman_INCLUDE_lsblk is not set
 # ----------luci-app-passwall - configuration
+# CONFIG_PACKAGE_luci-app-passwall_INCLUDE_ChinaDNS_NG is not set
 # CONFIG_PACKAGE_luci-app-passwall_INCLUDE_Dns2socks is not set
 # CONFIG_PACKAGE_luci-app-passwall_INCLUDE_PDNSD is not set
 # CONFIG_PACKAGE_luci-app-passwall_INCLUDE_Shadowsocks_Libev_Client is not set
@@ -64,20 +67,37 @@ clean_content
 # 基础包和应用
 #=========================================
 cat >> .config <<EOF
+# ----------extra packages-automount
 CONFIG_PACKAGE_automount=y
-CONFIG_PACKAGE_cfdisk=y
-CONFIG_PACKAGE_usbutils=y
-CONFIG_DEFAULT_kmod-usb3=y
+# ----------extra packages-ipv6helper
 CONFIG_PACKAGE_ipv6helper=y
+# ----------Utilities-Disc-cfdisk
+CONFIG_PACKAGE_cfdisk=y
+# ----------Utilities-usbutils
+CONFIG_PACKAGE_usbutils=y
+# ----------Utilities-coreutils-base64
 CONFIG_PACKAGE_coreutils-base64=y
+# ----------Kernel modules-USB Support-kmod-usb3
+CONFIG_DEFAULT_kmod-usb3=y
+# ----------luci-app-hd-idle
 CONFIG_PACKAGE_luci-app-hd-idle=y
+# ----------luci-app-cifsd
 CONFIG_PACKAGE_luci-app-cifsd=y
+# ----------luci-app-commands
 CONFIG_PACKAGE_luci-app-commands=y
+# ----------luci-app-qos
 CONFIG_PACKAGE_luci-app-qos=y
+# ----------luci-app-eqos
+CONFIG_PACKAGE_luci-app-eqos=y
+# ----------luci-app-sqm
 CONFIG_PACKAGE_luci-app-sqm=y
+# ----------luci-app-ttyd
 CONFIG_PACKAGE_luci-app-ttyd=y
+# ----------luci-app-wrtbwmon
 CONFIG_PACKAGE_luci-app-wrtbwmon=y
-CONFIG_PACKAGE_luci-theme-argon_new=y
+# ----------luci-theme-argon
+CONFIG_PACKAGE_luci-theme-argon=y
+CONFIG_PACKAGE_luci-app-argon-config=y
 EOF
 }
 
@@ -87,15 +107,27 @@ basic_content
 # 功能包
 #=========================================
 cat >> .config <<EOF
+# ----------luci-app-aria2
 CONFIG_PACKAGE_luci-app-aria2=y
+# ----------luci-app-jd-dailybonus
 CONFIG_PACKAGE_luci-app-jd-dailybonus=y
-CONFIG_PACKAGE_luci-app-nps=y
-CONFIG_PACKAGE_luci-app-openclash=y
-CONFIG_PACKAGE_ip6tables-mod-nat=y
-CONFIG_PACKAGE_luci-app-transmission=y
+CONFIG_PACKAGE_luci-app-unblockmusic_INCLUDE_UnblockNeteaseMusic_NodeJS=y
+# ----------luci-app-unblockmusic_Go
 CONFIG_PACKAGE_luci-app-unblockmusic_INCLUDE_UnblockNeteaseMusic_Go=y
+# ----------luci-app-nps
+CONFIG_PACKAGE_luci-app-nps=y
+# ----------luci-app-openclash
+CONFIG_PACKAGE_luci-app-openclash=y
+# ----------network-firewall-ip6tables-ip6tables-mod-nat
+CONFIG_PACKAGE_ip6tables-mod-nat=y
+# ----------luci-app-transmission
+CONFIG_PACKAGE_luci-app-transmission=y
+# ----------luci-app-watchcat
 CONFIG_PACKAGE_luci-app-watchcat=y
+# ----------luci-app-zerotier
 CONFIG_PACKAGE_luci-app-zerotier=y
+# ----------luci-app-v2ray-server
+CONFIG_PACKAGE_luci-app-v2ray-server=y
 EOF
 }
 
@@ -105,7 +137,9 @@ func_content
 # 测试域
 #=========================================
 cat >> .config <<EOF
-CONFIG_PACKAGE_luci-app-v2ray-server=y
+CONFIG_PACKAGE_luci-app-frpc=y
+CONFIG_PACKAGE_luci-app-n2n_v2=y
+# CONFIG_PACKAGE_luci-app-verysync=y
 EOF
 }
 
