@@ -96,8 +96,10 @@ CONFIG_PACKAGE_luci-app-ttyd=y
 # ----------luci-app-wrtbwmon
 CONFIG_PACKAGE_luci-app-wrtbwmon=y
 # ----------luci-theme-argon
-CONFIG_PACKAGE_luci-theme-argon=y
+# CONFIG_PACKAGE_luci-theme-argon=y
 CONFIG_PACKAGE_luci-app-argon-config=y
+# ----------luci-app-webadmin
+CONFIG_PACKAGE_luci-app-webadmin=y
 EOF
 }
 
