@@ -231,11 +231,11 @@ jobs:
             TEST_NAME="${cnt}${title}"
             # 测试日志文件
             TEST_LOG_FILE="$ARTIFACTS_DIR/${TEST_NAME}.log"
-            cp $file $TEST_LOG_FILE
+            cp $file "$TEST_LOG_FILE"
             echo "[TEST_LOG_FILE] ${TEST_LOG_FILE}"
             # 测试结果存放目录
             TEST_RESULT_DIR="$ARTIFACTS_DIR/${TEST_NAME}"
-            mkdir ${TEST_RESULT_DIR}
+            mkdir "${TEST_RESULT_DIR}"
             echo "[TEST_RESULT_DIR] ${TEST_RESULT_DIR}"
 
             # 生成完整.config
@@ -250,7 +250,7 @@ jobs:
             du -ab --max-depth=1 ./bin/targets/*/* | awk '{printf "%8.2fM",$1/2^20; $1=""; print}' | tee -a ${TEST_LOG_FILE}
             echo "[Test ${cnt}] --END OF TEST--"
             # 保留有用文件
-            mv ./bin/targets/*/*/*.buildinfo ./bin/targets/*/*/*.manifest ${TEST_RESULT_DIR}/
+            mv ./bin/targets/*/*/*.buildinfo ./bin/targets/*/*/*.manifest "${TEST_RESULT_DIR}/"
 
             echo "[Test ${cnt}] Clean for the next round..."
             # 删除无用文件
