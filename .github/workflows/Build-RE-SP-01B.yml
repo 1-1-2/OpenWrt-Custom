@@ -8,14 +8,14 @@
 # Description: Build OpenWrt using GitHub Actions
 #
 
-name: Build OpenWrt
+name: Build - RE-SP-01B
 
 on:
   repository_dispatch:
   workflow_dispatch:
     inputs:
       ssh:
-        description: 'SSH connection to Actions'
+        description: 'download前进行SSH调试(true|false)'
         required: false
         default: 'false'
       config_tag:
@@ -29,7 +29,7 @@ env:
   FEEDS_CONF: feeds.conf.default
   CONFIG_FILE: .config
   DIY_P1_SH: diy-part1.sh
-  DIY_P2_SH: diy-part2.sh
+  DIY_P2_SH: RE-SP-01B-part2.sh
   UPLOAD_BIN_DIR: true
   UPLOAD_FIRMWARE: true
   UPLOAD_COWTRANSFER: true
@@ -47,7 +47,7 @@ jobs:
 
     - name: Show config tag
       run: |
-        echo "::warning:: [Config tag] ${{ github.event.inputs.config_tag }}"
+        echo "::warning:: [Build Type] Build with ${{ github.event.inputs.config_tag }} .config"
 
     - name: Initialization environment
       env:
@@ -89,8 +89,11 @@ jobs:
         [ -e $CONFIG_FILE ] && mv $CONFIG_FILE openwrt/.config
         chmod +x $DIY_P2_SH
         cd openwrt
+        # 使用脚本生成配置
         $GITHUB_WORKSPACE/$DIY_P2_SH ${{ github.event.inputs.config_tag }}
+        echo ==============.config===============
         cat .config
+        echo ====================================
 
     - name: SSH connection to Actions
       uses: P3TERX/ssh2actions@v1.0.0
@@ -104,7 +107,16 @@ jobs:
       run: |
         cd openwrt
         make defconfig
-        make download -j8
+
+        # 下载包，如若出错生成警告
+        # 一轮八线程
+        make download -j8 | tee make_download.log
+        grep 'ERROR:' make_download.log | xargs -i echo "::warning:: [Download Trial 1]" {}
+        find dl -size -1024c -exec ls -l {} \;
+        find dl -size -1024c -exec rm -f {} \;
+        # 二轮单线程
+        grep 'ERROR:' -q -m1 make_download.log && make download -j1 V=s | tee make_download.log
+        grep 'ERROR:' make_download.log | xargs -i echo "::warning:: [Download Trial 2]" {}
         find dl -size -1024c -exec ls -l {} \;
         find dl -size -1024c -exec rm -f {} \;
 
@@ -112,8 +124,9 @@ jobs:
       id: compile
       run: |
         cd openwrt
-        echo -e "Trying $(($(nproc)+1)) thread compile..."
-        make -j $(($(nproc)+1)) || make -j1 || make -j1 V=s
+        echo -e "Try $(($(nproc)+1)) thread compile first..."
+        make -j $(($(nproc)+1)) || make -j1 || make -j1 V=s.
+        # 存点变量待用
         grep '^CONFIG_TARGET.*DEVICE.*=y' .config | sed -r 's/.*DEVICE_(.*)=y/\1/' > DEVICE_NAME
         [ -s DEVICE_NAME ] && echo "DEVICE_NAME=_$(cat DEVICE_NAME)" >> $GITHUB_ENV
         echo "FILE_DATE=_$(date +"%Y%m%d%H%M")" >> $GITHUB_ENV

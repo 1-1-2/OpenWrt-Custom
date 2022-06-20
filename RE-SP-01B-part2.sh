@@ -20,7 +20,7 @@ sed -i 's/192.168.1.1/192.168.199.1/g' package/base-files/files/bin/config_gener
 # sed -i "s/'UTC'/'CST-8'\n        set system.@system[-1].zonename='Asia\/Shanghai'/g" package/base-files/files/bin/config_generate
 
 echo '修改机器名称'
-sed -i 's/OpenWrt/N3D2/g' package/base-files/files/bin/config_generate
+sed -i 's/OpenWrt/JDC_Mark1/g' package/base-files/files/bin/config_generate
 
 echo '修改默认主题'
 # sed -i 's/luci-theme-bootstrap/luci-theme-argonne/g' feeds/luci/collections/luci*/Makefile
@@ -28,12 +28,34 @@ sed -i 's/bootstrap/argon/g' feeds/luci/modules/luci-base/root/etc/config/luci
 
 target_inf() {
     #=========================================
+    # Patch for model RE-SP-01B
+    #=========================================
+    # fix1
+    curl --retry 3 -s https://raw.githubusercontent.com/coolsnowwolf/lede/7a50383ab6231354746d9b8ddd8b2837f2d3b85e/target/linux/ramips/dts/mt7621_jdcloud_re-sp-01b.dts -o target/linux/ramips/dts/mt7621_jdcloud_re-sp-01b.dts
+    # fix4.1
+    sed -i -e '95,106d' -e '93s/1ab/1fb/' target/linux/ramips/dts/mt7621_jdcloud_re-sp-01b.dts
+
+    # fix2
+    curl --retry 3 -s https://raw.githubusercontent.com/coolsnowwolf/lede/7a50383ab6231354746d9b8ddd8b2837f2d3b85e/target/linux/ramips/image/mt7621.mk | sed -n '726,734p' > mt7621.mk.part
+    sed -i 's/27328/32448/' mt7621.mk.part # fix4.2
+    echo ===========mt7621.mk.part===========
+    cat mt7621.mk.part
+    echo ====================================
+    sed -i '1,/TARGET_DEVICES/{/TARGET_DEVICES/r mt7621.mk.part
+    }' target/linux/ramips/image/mt7621.mk
+
+    # fix3
+    sed -i '1,/m33g/{/m33g/i\
+            jdcloud,re-sp-01b|\\
+    }' target/linux/ramips/mt7621/base-files/etc/board.d/02_network
+
+    #=========================================
     # Target System
     #=========================================
     cat >> .config << EOF
 CONFIG_TARGET_ramips=y
 CONFIG_TARGET_ramips_mt7621=y
-CONFIG_TARGET_ramips_mt7621_DEVICE_d-team_newifi-d2=y
+CONFIG_TARGET_ramips_mt7621_DEVICE_jdcloud_re-sp-01b=y
 EOF
 }
 
