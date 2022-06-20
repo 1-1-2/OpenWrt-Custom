@@ -42,15 +42,15 @@ jobs:
           echo '====================序列内容===================='
           cat ${{ env.SEQ_FILENAME }} -An
           echo '====================测试目录===================='
-          grep '#' ${{ env.SEQ_FILENAME }} -n | cat -n
+          grep '@' ${{ env.SEQ_FILENAME }} -n | cat -n
 
       # assign jobs
       - name: Divide Work of Tests
         id: set-matrix
         run: |
           lines_cnt=$(wc -l ${{ env.SEQ_FILENAME }} | cut -f1 -d' ')
-          number_of_tests=$(grep '#' ${{ env.SEQ_FILENAME }} -c)
-          title_line_list=($(grep '#' ${{ env.SEQ_FILENAME }} -n | cut -d: -f1))
+          number_of_tests=$(grep '@' ${{ env.SEQ_FILENAME }} -c)
+          title_line_list=($(grep '@' ${{ env.SEQ_FILENAME }} -n | cut -d: -f1))
           echo "序列文件共${lines_cnt}行，包含${number_of_tests}条测试任务，\"[任务序号]标题行行号\"序列如下："
           for i in $(seq ${number_of_tests}); do
             echo -n "[$i]${title_line_list[i-1]} "
@@ -123,7 +123,7 @@ jobs:
           echo "====================作业${SEQ_ID}测试序列(${context_field})===================="
           cat JOB_TESTs_SEQ -An
           echo "====================测试目录(计数器初始值为${test_cnt_init})===================="
-          grep '#' JOB_TESTs_SEQ -n | cat -n
+          grep '@' JOB_TESTs_SEQ -n | cat -n
 
       - name: Initialization environment
         env:
@@ -170,13 +170,13 @@ jobs:
         id: download
         run: |
           [ -e files ] && mv files openwrt/files
-          [ -e $CONFIG_FILE ] && mv $CONFIG_FILE openwrt/.config
+          # [ -e $CONFIG_FILE ] && mv $CONFIG_FILE openwrt/.config
           chmod +x $DIY_P2_SH
 
           cd openwrt
-          $GITHUB_WORKSPACE/$DIY_P2_SH $CONFIG_BASE_VERSION
+          $GITHUB_WORKSPACE/$DIY_P2_SH $CONFIG_BASE_VERSION             # 配置基准，.config baseline
           cp .config clean.config                                       # 保留副本，每次编译都以此为起点
-          sed '/#/d' $GITHUB_WORKSPACE/JOB_TESTs_SEQ >> .config         # 去掉注释/不勾选的行，使测试包内容也添加至下载中
+          sed '/@/d' $GITHUB_WORKSPACE/JOB_TESTs_SEQ >> .config         # 去掉注释/不勾选的行，使测试包内容也添加至下载中
           make defconfig
 
           # 下载包，如若出错生成警告
@@ -201,11 +201,11 @@ jobs:
           # grep '^CONFIG_TARGET.*DEVICE.*=y' .config | sed -r 's/.*DEVICE_(.*)=y/\1/' > DEVICE_NAME
           # [ -s DEVICE_NAME ] && echo "DEVICE_NAME=_$(cat DEVICE_NAME)" >> $GITHUB_ENV
 
-          # 预处理下载序列
+          # 测试序列预处理
           JOB_TESTs_SEQ="${GITHUB_WORKSPACE}/JOB_TESTs_SEQ"
           sed -i 's/\r//' ${JOB_TESTs_SEQ}                   # 去除win下的CR(\r)，否则上传artifacts时会出错
           # 分割测试序列，组合成一系列配置文件
-          (mkdir config_seq; cd config_seq; csplit ${JOB_TESTs_SEQ} /#/ {*} -sz)
+          (mkdir config_seq; cd config_seq; csplit ${JOB_TESTs_SEQ} /@/ {*} -sz)
 
           # 创建产物目录
           ARTIFACTS_DIR=$(mkdir ARTIFACTS_DIR; cd ARTIFACTS_DIR; pwd)
@@ -216,18 +216,18 @@ jobs:
           uptime_log () { while :; do uptime >> $ARTIFACTS_DIR/uptime_log_${SEQ_ID}.txt; sleep 30; done }
           uptime_log &
 
-          cnt=$((test_cnt_init-1))                           # 轮次计数器初始化，以为一开始就++所以先-1
+          cnt=$((test_cnt_init-1))                           # 轮次计数器初始化，因为一开始就++所以先-1
           for file in config_seq/xx*
           do
             title=$(head $file -n1)
             echo "[Test $((++cnt))] $title" $(date +"%Y-%m-%d %H:%M")
 
-            cp -f clean.config .config    # 重置为洁净.config
+            cp -f clean.config .config    # 用基准.config重置，起点
             echo "[Test $cnt] Append lines to .config"
-            sed '/#/d' $file | tee -a .config         # 去掉注释行，写入配置
+            sed '/@/d' $file | tee -a .config         # 去掉注释行，增写配置
             echo "[Test $cnt] End of writing .config"
 
-            # 测试名：[测试序号][标题]，例：1#Clean
+            # 测试名：[测试序号][标题]，例：1@Clean
             TEST_NAME="${cnt}${title}"
             # 测试日志文件
             TEST_LOG_FILE="$ARTIFACTS_DIR/${TEST_NAME}.log"
@@ -259,7 +259,7 @@ jobs:
             echo "[Test $cnt] --Finished--" $(date +"%Y-%m-%d %H:%M")
           done
 
-          # 保留所有的pak
+          # 保留所有的ipk
           mv ./bin ${ARTIFACTS_DIR}/
 
           echo "[Check disk usage]"

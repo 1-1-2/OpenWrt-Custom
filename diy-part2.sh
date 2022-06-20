@@ -34,30 +34,8 @@ EOF
 # Remove defaults app
 #=========================================
 cat >> .config <<EOF
-# ----------luci-app-accesscontrol
-# CONFIG_PACKAGE_luci-app-accesscontrol is not set
-# ----------luci-app-adguardhome
-# CONFIG_PACKAGE_luci-app-adguardhome_INCLUDE_binary is not set
-# ----------luci-app-diskman
-# CONFIG_PACKAGE_luci-app-diskman_INCLUDE_btrfs_progs is not set
-# CONFIG_PACKAGE_luci-app-diskman_INCLUDE_lsblk is not set
-# ----------luci-app-passwall - configuration
-# CONFIG_PACKAGE_luci-app-passwall_INCLUDE_ChinaDNS_NG is not set
-# CONFIG_PACKAGE_luci-app-passwall_INCLUDE_Dns2socks is not set
-# CONFIG_PACKAGE_luci-app-passwall_INCLUDE_PDNSD is not set
-# CONFIG_PACKAGE_luci-app-passwall_INCLUDE_Shadowsocks_Libev_Client is not set
-# CONFIG_PACKAGE_luci-app-passwall_INCLUDE_ShadowsocksR_Libev_Client is not set
-# CONFIG_PACKAGE_luci-app-passwall_INCLUDE_Simple_Obfs is not set
-# CONFIG_PACKAGE_luci-app-passwall_INCLUDE_Trojan_Plus is not set
-# ----------luci-app-ramfree
-# CONFIG_PACKAGE_luci-app-ramfree is not set
-# ----------luci-app-rclone
-# CONFIG_PACKAGE_luci-app-rclone_INCLUDE_rclone-webui is not set
-# CONFIG_PACKAGE_luci-app-rclone_INCLUDE_rclone-ng is not set
-# CONFIG_PACKAGE_luci-app-rclone_INCLUDE_fuse-utils is not set
 # ----------luci-app-ssr-plus
 # CONFIG_PACKAGE_luci-app-ssr-plus is not set
-# CONFIG_PACKAGE_luci-app-ssr-plus_INCLUDE_ShadowsocksR_Libev_Client is not set
 EOF
 }
 
@@ -116,8 +94,11 @@ CONFIG_PACKAGE_luci-app-jd-dailybonus=y
 CONFIG_PACKAGE_luci-app-unblockmusic_INCLUDE_UnblockNeteaseMusic_NodeJS=y
 # ----------luci-app-unblockmusic_Go
 CONFIG_PACKAGE_luci-app-unblockmusic_INCLUDE_UnblockNeteaseMusic_Go=y
-# ----------luci-app-nps
+# ----------luci-app-VPNs
 CONFIG_PACKAGE_luci-app-nps=y
+CONFIG_PACKAGE_luci-app-frpc=y
+CONFIG_PACKAGE_luci-app-n2n_v2=y
+CONFIG_PACKAGE_luci-app-zerotier=y
 # ----------luci-app-openclash
 CONFIG_PACKAGE_luci-app-openclash=y
 # ----------network-firewall-ip6tables-ip6tables-mod-nat
@@ -126,8 +107,6 @@ CONFIG_PACKAGE_ip6tables-mod-nat=y
 CONFIG_PACKAGE_luci-app-transmission=y
 # ----------luci-app-watchcat
 CONFIG_PACKAGE_luci-app-watchcat=y
-# ----------luci-app-zerotier
-CONFIG_PACKAGE_luci-app-zerotier=y
 # ----------luci-app-v2ray-server
 CONFIG_PACKAGE_luci-app-v2ray-server=y
 EOF
@@ -139,8 +118,7 @@ func_content
 # 测试域
 #=========================================
 cat >> .config <<EOF
-CONFIG_PACKAGE_luci-app-frpc=y
-CONFIG_PACKAGE_luci-app-n2n_v2=y
+CONFIG_PACKAGE_e2fsprogs=y
 # CONFIG_PACKAGE_luci-app-verysync=y
 EOF
 }
@@ -176,7 +154,7 @@ else
     func_content
 fi
 
-# 删除空行
+# 移除行首的空格和制表符
 sed -i 's/^[ \t]*//g' .config
 # make defconfig
 # diff .config default.config --color
