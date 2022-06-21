@@ -3,12 +3,16 @@ name: Package Size Test - v2
 on:
   workflow_dispatch:
     inputs:
+      DIY_P2_FILENAME:
+        description: '指定第二DIY脚本(实现切换型号等)'
+        required: false
+        default: 'diy-part2.sh'
       CONFIG_BASE_VERSION:
         description: '基准配置版本(clean|basic|func|test)'
         required: false
         default: 'clean'
       Test_per_Job_Limit:
-        description: '单作业最大测试数（免费用户最大并行作业数为20）'
+        description: '单作业最大测试数(免费用户最大并行作业数为20)'
         required: false
         default: '10'
 
@@ -18,7 +22,7 @@ env:
   FEEDS_CONF: feeds.conf.default
   CONFIG_FILE: .config
   DIY_P1_SH: diy-part1.sh
-  DIY_P2_SH: diy-part2.sh
+  DIY_P2_SH: ${{ github.event.inputs.DIY_P2_FILENAME }}
   TZ: Asia/Shanghai
   CONFIG_BASE_VERSION: ${{ github.event.inputs.CONFIG_BASE_VERSION }}
   SEQ_FILENAME: TestSequence.txt
