@@ -250,6 +250,7 @@ jobs:
             echo "[Test ${test_no}] Try $(($(nproc)+1)) thread compile first"
               # try
               ( make -j $(($(nproc)+1)) || make -j1 || make -j1 V=s ) | tee -a "$TEST_LOG_FILE"
+            # 根据第一节管道返回值判断编译结果
             if [ ${PIPESTATUS[0]} -ne 0 ]; then
               # except
               echo "[Test ${test_no}] Error(s) occurred during compile, please check..."
