@@ -257,7 +257,8 @@ jobs:
             # 根据第一节管道返回值判断编译结果
             if [ ${PIPESTATUS[0]} -ne 0 ]; then
               # except
-              echo "[Test ${test_no}] Error(s) occurred during compile, please check..."
+              # echo "[Test ${test_no}, ${title}] Error(s) occurred during compile, please check..."
+              echo "::warning:: [Test ${test_no}, ${title}] Error(s) occurred during compile, please check..."
               touch "${TEST_RESULT_DIR}/is_failed"
             else
               echo "[Test ${test_no}] Compile success..."
