@@ -229,11 +229,11 @@ jobs:
           test_no=$((test_cnt_init-1))                        # 轮次计数器初始化，因为一开始就++所以先-1
           for patch_file in config_seq/patch*
           do
-            title=$(head $patch_file -n1)                     # 原汁原味的标题，保留所有特殊符号
+            title=$(head "${patch_file}" -n1)                     # 原汁原味的标题，保留所有特殊符号
             echo "[Test No.$((++test_no))] $title, start at $(date +"%Y-%m-%d %H:%M")"
 
             cp -f clean.config .config                        # 起点，重置为基准配置
-            sed '/@/d' $patch_file | tee -a .config           # 去掉标题行，增写配置
+            sed '/@/d' "${patch_file}" | tee -a .config           # 去掉标题行，增写配置
             echo " ==============[Test $test_no].config=============="
             cat .config
             echo "==============================================="
@@ -258,7 +258,7 @@ jobs:
             if [ ${PIPESTATUS[0]} -ne 0 ]; then
               # except
               echo "[Test ${test_no}] Error(s) occurred during compile, please check..."
-              touch ${TEST_RESULT_DIR}/is_failed
+              touch "${TEST_RESULT_DIR}/is_failed"
             else
               echo "[Test ${test_no}] Compile success..."
               echo 'in path ' ./bin/targets/*/*
@@ -267,7 +267,7 @@ jobs:
               
               # 截取bytes换算为MB（精度-两位小数），记录到文件
               echo "[Test ${test_no}] Logging filesize..."
-              du -ab --max-depth=1 ./bin/targets/*/* | awk '{printf "%8.2fM",$1/2^20; $1=""; print}' | tee "$ARTIFACTS_DIR/${TEST_NAME}.sizelog.txt"
+              du -ab --max-depth=1 ./bin/targets/*/* | awk '{printf "%8.2fM",$1/2^20; $1=""; print}' | tee "${ARTIFACTS_DIR}/${TEST_NAME}.sizelog.txt"
 
               # 保留有用文件
               mv -v .config ./bin/targets/*/*/*.{buildinfo,manifest} "${TEST_RESULT_DIR}/"
@@ -281,7 +281,7 @@ jobs:
           done
 
           # 保留所有的ipk
-          mv ./bin ${ARTIFACTS_DIR}/
+          mv ./bin "${ARTIFACTS_DIR}/"
 
           echo "[Check disk usage]"
           df -hT .
@@ -307,5 +307,5 @@ jobs:
     steps:
       - uses: GitRML/delete-workflow-runs@main
         with:
-          retain_days: 1
-          keep_minimum_runs: 3
+          retain_days: 21
+          keep_minimum_runs: 5
