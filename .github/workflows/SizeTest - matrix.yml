@@ -297,7 +297,7 @@ jobs:
               # 复制保留有用文件
               # ./bin/targets/ramips/mt7621/packages
               mv -v .config ./bin/targets/*/*/*.{buildinfo,manifest} "${TEST_RESULT_DIR}/"
-              cp -uv --parents ./bin/targets/*/*/packages "${ARTIFACTS_DIR}"   # 不复制会被删掉的
+              cp -urv --parents ./bin/targets/*/*/packages "${ARTIFACTS_DIR}"                     # 不移走会被覆盖/删除掉
 
               # bin太大不留了，连带其校验码文件删除
               echo "[Test ${test_no}] Cleaning for the next test..."
@@ -314,7 +314,7 @@ jobs:
 
           find ./bin/targets/*/* -maxdepth 1 -type f -exec rm -v {} \;
           # 保留所有的ipk
-          mv -vf ./bin "${ARTIFACTS_DIR}/"
+          cp -uvr ./bin "${ARTIFACTS_DIR}/"
           # 保留测试序列和DIY脚本2
           cp -v "${GITHUB_WORKSPACE}/${SEQ_FILENAME}" "${GITHUB_WORKSPACE}/${DIY_P2_SH}" "${ARTIFACTS_DIR}/"
 
