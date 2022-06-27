@@ -100,7 +100,4 @@ jobs:
     needs: build_debug
     if: ${{ always() }}
     steps:
-      - uses: GitRML/delete-workflow-runs@main
-        with:
-          retain_days: 1
-          keep_minimum_runs: 3
+      - uses: Mattraks/delete-workflow-runs@main
