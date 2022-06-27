@@ -340,7 +340,7 @@ jobs:
     needs: Workers
     if: ${{ always() }}
     steps:
-      - uses: GitRML/delete-workflow-runs@main
+      - uses: Mattraks/delete-workflow-runs@main
         with:
-          retain_days: 21
+          retain_days: 30
           keep_minimum_runs: 5
