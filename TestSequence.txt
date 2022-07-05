@@ -8,7 +8,6 @@ CONFIG_PACKAGE_luci-app-accesscontrol=y
 CONFIG_PACKAGE_luci-app-wrtbwmon=y
 CONFIG_PACKAGE_luci-app-watchcat=y
 CONFIG_PACKAGE_luci-app-v2ray-server=y
-CONFIG_PACKAGE_luci-app-diag-core=y
 CONFIG_PACKAGE_luci-app-eqos=y
 @ Extra_packages_automount
 CONFIG_PACKAGE_automount=y
@@ -106,12 +105,8 @@ CONFIG_PACKAGE_luci-app-advanced-reboot=y
 CONFIG_PACKAGE_luci-app-advanced=y
 @ Test_luci-app-aliyundrive-webdav
 CONFIG_PACKAGE_luci-app-aliyundrive-webdav=y
-@ Test_luci-app-attendedsysupgrade
-CONFIG_PACKAGE_luci-app-attendedsysupgrade=y
 @ Test_luci-app-clash
 CONFIG_PACKAGE_luci-app-clash=y
-@ Test_luci-app-diskman
-CONFIG_PACKAGE_luci-app-diskman=y
 @ Test_luci-app-dnscrypt-proxy
 CONFIG_PACKAGE_luci-app-dnscrypt-proxy=y
 @ Test_luci-app-dnsforwarder
@@ -148,3 +143,5 @@ CONFIG_PACKAGE_luci-app-syncdial=y
 CONFIG_PACKAGE_luci-app-tinyproxy=y
 @ Test_luci-app-travelmate
 CONFIG_PACKAGE_luci-app-travelmate=y
+@ Test_luci-app-dockerman
+luci-app-dockerman

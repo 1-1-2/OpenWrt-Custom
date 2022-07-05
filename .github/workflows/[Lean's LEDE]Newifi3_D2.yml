@@ -8,7 +8,7 @@
 # Description: Build OpenWrt using GitHub Actions
 #
 
-name: Build - HC5661
+name: Lean's LEDE - Newifi3_D2
 
 on:
   repository_dispatch:
@@ -29,7 +29,7 @@ env:
   FEEDS_CONF: feeds.conf.default
   CONFIG_FILE: .config
   DIY_P1_SH: diy-part1.sh
-  DIY_P2_SH: HC5661-part2.sh
+  DIY_P2_SH: diy-part2/[Lean's LEDE]Newifi3D2-part2.sh
   UPLOAD_BIN_DIR: true
   UPLOAD_FIRMWARE: true
   UPLOAD_COWTRANSFER: true
@@ -92,7 +92,7 @@ jobs:
         # 使用脚本生成配置
         $GITHUB_WORKSPACE/$DIY_P2_SH ${{ github.event.inputs.config_tag }}
         echo ==============.config===============
-        cat .config
+        [ -e .config ] && cat .config || echo 'no default .config'
         echo ====================================
 
     - name: SSH connection to Actions
@@ -107,6 +107,9 @@ jobs:
       run: |
         cd openwrt
         make defconfig
+        echo ============diff.config=============
+        ./scripts/diffconfig.sh
+        echo ====================================
 
         # 下载包，如若出错生成警告
         # 一轮八线程
