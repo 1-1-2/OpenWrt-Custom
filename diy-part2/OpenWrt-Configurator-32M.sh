@@ -40,7 +40,7 @@ add_packages(){
 			cp "$1" tmp/before_mod.bak
 			sed -i 's/services/nas/' "$1"
 			echo "将$(basename "$1" | cut -d. -f1)从services移动到了nas"
-			diff before_mod.bak "$1"
+			diff tmp/before_mod.bak "$1"
 			echo '---EOF---'
 		else
 			echo 没找到$1
@@ -68,7 +68,7 @@ add_packages(){
 
     # 解决无法正确识别出简体中文语言包的问题
     # ref: https://github.com/ysc3839/luci-proto-minieap/pull/2
-    find -type d -path '*/po/zh-cn' | xargs dirname | xargs -I'{}' ln -fs {}/zh-cn {}/zh_Hans
+    find -type d -path '*/po/zh-cn' | xargs dirname | xargs -I'{}' ln -vfs {}/zh-cn {}/zh_Hans
 }
 
 config_clean() {
