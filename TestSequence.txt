@@ -5,12 +5,20 @@ CONFIG_PACKAGE_coreutils=y
 CONFIG_PACKAGE_coreutils-base64=y
 CONFIG_PACKAGE_luci-app-accesscontrol=y
 @ Small_paks
-CONFIG_PACKAGE_luci-app-wrtbwmon=y
-CONFIG_PACKAGE_luci-app-watchcat=y
-CONFIG_PACKAGE_luci-app-v2ray-server=y
 CONFIG_PACKAGE_luci-app-eqos=y
-@ Extra_packages_automount
+CONFIG_PACKAGE_luci-app-watchcat=y
+CONFIG_PACKAGE_luci-app-advanced-reboot=y
+CONFIG_PACKAGE_luci-app-wrtbwmon=y
+CONFIG_PACKAGE_luci-app-v2ray-server=y
+# CONFIG_PACKAGE_luci-app-gost=y
+CONFIG_PACKAGE_luci-app-guest-wifi=y
+CONFIG_PACKAGE_luci-app-wifischedule=y
+@ Support_external_drive
 CONFIG_PACKAGE_automount=y
+CONFIG_PACKAGE_usbutils=y
+CONFIG_DEFAULT_kmod-usb3=y
+CONFIG_PACKAGE_block-mount=y
+CONFIG_PACKAGE_luci-app-hd-idle=y
 @ Utilities_cfdisk
 CONFIG_PACKAGE_cfdisk=y
 @ Utilities_fdisk
@@ -19,11 +27,6 @@ CONFIG_PACKAGE_fdisk=y
 CONFIG_PACKAGE_parted=y
 @ Utilities_jq
 CONFIG_PACKAGE_jq=y
-@ External_drive
-CONFIG_PACKAGE_usbutils=y
-CONFIG_DEFAULT_kmod-usb3=y
-CONFIG_PACKAGE_block-mount=y
-CONFIG_PACKAGE_luci-app-hd-idle=y
 @ Basic_luci-app-cifsd
 # CONFIG_PACKAGE_autosamba is not set
 # CONFIG_PACKAGE_luci-app-samba is not set
@@ -66,9 +69,6 @@ CONFIG_PACKAGE_luci-app-unblockmusic=y
 CONFIG_PACKAGE_luci-app-unblockmusic_INCLUDE_UnblockNeteaseMusic_NodeJS=y
 @ Test_luci-app-amule
 CONFIG_PACKAGE_luci-app-amule=y
-@ Test_luci-app-guest-wifi&wifischedule
-CONFIG_PACKAGE_luci-app-guest-wifi=y
-CONFIG_PACKAGE_luci-app-wifischedule=y
 @ Test_luci-app-minidlna
 CONFIG_PACKAGE_luci-app-minidlna=y
 @ Test_luci-app-netdata
@@ -99,8 +99,6 @@ CONFIG_PACKAGE_luci-app-uugamebooster=y
 CONFIG_PACKAGE_luci-app-vssr=y
 @ Test_luci-app-xlnetacc
 CONFIG_PACKAGE_luci-app-xlnetacc=y
-@ Test_luci-app-advanced-reboot
-CONFIG_PACKAGE_luci-app-advanced-reboot=y
 @ Test_luci-app-advanced
 CONFIG_PACKAGE_luci-app-advanced=y
 @ Test_luci-app-aliyundrive-webdav
@@ -113,10 +111,6 @@ CONFIG_PACKAGE_luci-app-dnscrypt-proxy=y
 CONFIG_PACKAGE_luci-app-dnsforwarder=y
 @ Test_luci-app-haproxy-tcp
 CONFIG_PACKAGE_luci-app-haproxy-tcp=y
-@ Test_luci-app-familycloud
-CONFIG_PACKAGE_luci-app-familycloud=y
-@ Test_luci-app-gost
-CONFIG_PACKAGE_luci-app-gost=y
 @ Test_luci-app-https-dns-proxy
 CONFIG_PACKAGE_luci-app-https-dns-proxy=y
 @ Test_luci-app-kodexplorer
@@ -144,4 +138,4 @@ CONFIG_PACKAGE_luci-app-tinyproxy=y
 @ Test_luci-app-travelmate
 CONFIG_PACKAGE_luci-app-travelmate=y
 @ Test_luci-app-dockerman
-luci-app-dockerman
+CONFIG_PACKAGE_luci-app-dockerman=y
