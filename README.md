@@ -1,44 +1,36 @@
-**English** | [中文](https://p3terx.com/archives/build-openwrt-with-github-actions.html)
+# 自用编译库
 
-# Actions-OpenWrt
+## 设备型号
 
-[![LICENSE](https://img.shields.io/github/license/mashape/apistatus.svg?style=flat-square&label=LICENSE)](https://github.com/P3TERX/Actions-OpenWrt/blob/master/LICENSE)
-![GitHub Stars](https://img.shields.io/github/stars/P3TERX/Actions-OpenWrt.svg?style=flat-square&label=Stars&logo=github)
-![GitHub Forks](https://img.shields.io/github/forks/P3TERX/Actions-OpenWrt.svg?style=flat-square&label=Forks&logo=github)
+| [Model](https://openwrt.org/toh) | SoC               | CPU MHz | Flash MB | RAM MB | WLAN Hardware                        | WLAN2.4 | WLAN5.0 | 100M ports | Gbit ports | Modem | USB    |
+| :------------------------------- | :---------------- | :------ | :------- | :----- | :----------------------------------- | :------ | :------ | :--------- | :--------- | :---- | :----- |
+| HC5661                           | MediaTek MT7620A  | 580     | 16       | 128    | MediaTek MT7620A                     | b/g/n   | -       | 5          | -          | -     | -      |
+| Newifi D2 (Newifi3)              | MediaTek MT7621AT | 880     | 32       | 512    | MediaTek MT7603EN, MediaTek MT7612EN | b/g/n   | a/n/ac  | -          | 5          | -     | 1x 3.0 |
+| RE-SP-01B                        | MediaTek MT7621AT | 880     | 32       | 512    | MediaTek MT7603, MediaTek MT7615     | b/g/n   | a/n/ac  | -          | 3          | -     | 1x 2.0 |
 
-A template for building OpenWrt with GitHub Actions
 
-## Usage
 
-- Click the [Use this template](https://github.com/P3TERX/Actions-OpenWrt/generate) button to create a new repository.
-- Generate `.config` files using [Lean's OpenWrt](https://github.com/coolsnowwolf/lede) source code. ( You can change it through environment variables in the workflow file. )
-- Push `.config` file to the GitHub repository.
-- Select `Build OpenWrt` on the Actions page.
-- Click the `Run workflow` button.
-- When the build is complete, click the `Artifacts` button in the upper right corner of the Actions page to download the binaries.
+## 适配系统
 
-## Tips
+| Model               | [Lean's LEDE](https://github.com/coolsnowwolf/lede) | [OpenWrt](https://github.com/openwrt/openwrt) |
+| ------------------- | --------------------------------------------------- | --------------------------------------------- |
+| HC5661              | ✅                                                   |                                               |
+| Newifi D2 (Newifi3) | ✅                                                   | ✅                                             |
+| RE-SP-01B           | ✅                                                   | ✅                                             |
 
-- It may take a long time to create a `.config` file and build the OpenWrt firmware. Thus, before create repository to build your own firmware, you may check out if others have already built it which meet your needs by simply [search `Actions-Openwrt` in GitHub](https://github.com/search?q=Actions-openwrt).
-- Add some meta info of your built firmware (such as firmware architecture and installed packages) to your repository introduction, this will save others' time.
+暂无更多适配计划
 
-## Credits
+——如果能帮到你，那是我的荣幸——
 
-- [Microsoft Azure](https://azure.microsoft.com)
-- [GitHub Actions](https://github.com/features/actions)
-- [OpenWrt](https://github.com/openwrt/openwrt)
-- [Lean's OpenWrt](https://github.com/coolsnowwolf/lede)
-- [tmate](https://github.com/tmate-io/tmate)
-- [mxschmitt/action-tmate](https://github.com/mxschmitt/action-tmate)
-- [csexton/debugger-action](https://github.com/csexton/debugger-action)
-- [Cowtransfer](https://cowtransfer.com)
-- [WeTransfer](https://wetransfer.com/)
-- [Mikubill/transfer](https://github.com/Mikubill/transfer)
-- [softprops/action-gh-release](https://github.com/softprops/action-gh-release)
-- [ActionsRML/delete-workflow-runs](https://github.com/ActionsRML/delete-workflow-runs)
-- [dev-drprasad/delete-older-releases](https://github.com/dev-drprasad/delete-older-releases)
-- [peter-evans/repository-dispatch](https://github.com/peter-evans/repository-dispatch)
 
-## License
 
-[MIT](https://github.com/P3TERX/Actions-OpenWrt/blob/main/LICENSE) © [**P3TERX**](https://p3terx.com)
+#### 致谢
+
+云编译模板源自 [P3TERX 的 Actions-OpenWrt](https://github.com/P3TERX/Actions-OpenWrt) Ver.[97697df](https://github.com/P3TERX/Actions-OpenWrt/tree/97697df385dc2036681aafed73afd2cd903632f1)
+
+> Actions-OpenWrt - A template for building OpenWrt with GitHub Actions
+>
+> [English](https://github.com/P3TERX/Actions-OpenWrt/blob/main/README.md) | [中文](https://p3terx.com/archives/build-openwrt-with-github-actions.html)
+>
+> [![LICENSE](https://img.shields.io/github/license/mashape/apistatus.svg?style=flat-square&label=LICENSE)](https://github.com/P3TERX/Actions-OpenWrt/blob/master/LICENSE) ![GitHub Stars](https://img.shields.io/github/stars/P3TERX/Actions-OpenWrt.svg?style=flat-square&label=Stars&logo=github) ![GitHub Forks](https://img.shields.io/github/forks/P3TERX/Actions-OpenWrt.svg?style=flat-square&label=Forks&logo=github)
+
