@@ -45,14 +45,13 @@ jobs:
     - name: Checkout
       uses: actions/checkout@main
 
-    - name: Show config tag
-      run: |
-        echo "::warning:: [Build Type] Build with ${{ github.event.inputs.config_tag }} .config"
-
     - name: Initialization environment
       env:
         DEBIAN_FRONTEND: noninteractive
       run: |
+        # notify config tag
+        echo "::notice:: [Build Type] Build with ${{ github.event.inputs.config_tag }} .config"
+        
         sudo rm -rf /etc/apt/sources.list.d/* /usr/share/dotnet /usr/local/lib/android /opt/ghc
         sudo -E apt-get -qq update
         sudo -E apt-get -qq install build-essential gawk gcc-multilib flex git gettext libncurses5-dev libssl-dev python3-distutils zlib1g-dev
