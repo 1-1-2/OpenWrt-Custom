@@ -257,8 +257,9 @@ jobs:
             echo "[Test No.$((++test_no))] $title, start at $(date +"%Y-%m-%d %H:%M")"
 
             cp -vf clean.config .config                          # 起点，重置为基准配置
+            echo "============[Test $test_no] Patch Content============"
             sed '/@/d' "${patch_file}" | tee -a .config         # 去掉标题行，增写配置
-            echo " ==============[Test $test_no].config=============="
+            echo "===============[Test $test_no] .config==============="
             cat .config
             echo "==============================================="
 
@@ -274,8 +275,20 @@ jobs:
             cp -v "$patch_file" "${TEST_RESULT_DIR}/config.patch"
             echo "[TEST_LOG_FILE] ${TEST_LOG_FILE}"
 
-            # 补全默认值，执行编译
+            # 补全默认值
             make defconfig
+            # 分析配置文件中是否存在目标内容——合并、排序、去重、是否增加？
+            sed '/@/d' "${patch_file}" > patch_content.tmp
+            num1=$(cat .config | wc -l)
+            num2=$(sort .config patch_content.tmp | uniq -d | wc -l)
+            if [ $num1 -eq $num2 ];then
+              echo 补丁是配置文件的子集
+            else
+              echo 补丁不是配置文件的子集！
+              echo "::warning:: [Test ${test_no}, ${title}] Patch is not a subset of .config, please check..."
+            fi
+
+            # 执行编译
             echo "[Test ${test_no}] Try $(($(nproc)+1)) thread compile first" | tee "$TEST_LOG_FILE"
               # try
               ( make -j $(($(nproc)+1)) || make -j1 || make -j1 V=s ) | tee -a "$TEST_LOG_FILE"
