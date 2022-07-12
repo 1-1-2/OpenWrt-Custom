@@ -1,4 +1,4 @@
-name: Package Size Test - LEDE
+name: Package Size Test - OpenWrt
 
 on:
   workflow_dispatch:
@@ -6,11 +6,11 @@ on:
       DIY_P2_FILE:
         description: '指定第二DIY脚本(实现切换型号等)'
         required: false
-        default: "diy-part2/[Lean's LEDE]Newifi3D2-part2.sh"
+        default: "diy-part2/[OpenWrt]Newifi3D2-part2.sh"
       SEQ_FILE:
         description: '指定测试序列(与切换型号相对应)'
         required: false
-        default: "testSeq/lean's lede.ini"
+        default: "testSeq/openwrt.ini"
       CONFIG_BASE:
         description: '基准配置版本(clean|basic|func|test)'
         required: false
@@ -25,7 +25,7 @@ on:
         default: '10'
 
 env:
-  REPO_URL: https://github.com/coolsnowwolf/lede
+  REPO_URL: https://github.com/openwrt/openwrt
   REPO_BRANCH: master
   FEEDS_CONF: feeds.conf.default
   CONFIG_FILE: .config
