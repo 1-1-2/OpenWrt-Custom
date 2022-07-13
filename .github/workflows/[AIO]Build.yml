@@ -67,8 +67,18 @@ jobs:
         
     - id: job_tag
       run: |
+        # notifications
         echo "::set-output name=DEVICE_TAG::$DEVICE_TAG"
         echo "::notice title=Device Tag:: $DEVICE_TAG"
+        echo "::notice title=Image Type:: Build with ${{ inputs.config_tag }} .config"
+       
+        # 若指定了 commit 提个醒
+        if [ "$USE_COMMIT_SHA" == "latest" ]; then
+          LATEST_SHA=$(curl "https://api.github.com/repos/$REPO_USE/commits/$REPO_BRANCH" | grep sha | head -n1 | cut -d\" -f4)
+          echo "::notice title=Using latest commit::https://github.com/$REPO_USE/tree/$LATEST_SHA"
+        else
+          echo "::notice title=Using specific commit::https://github.com/$REPO_USE/tree/$USE_COMMIT_SHA"
+        fi
 
   build:
     runs-on: ubuntu-22.04
@@ -86,9 +96,6 @@ jobs:
       env:
         DEBIAN_FRONTEND: noninteractive
       run: |
-        # notifications
-        echo "::notice title=Image Type:: Build with ${{ inputs.config_tag }} .config"
-        
         sudo rm -rf /etc/apt/sources.list.d/* /usr/share/dotnet /usr/local/lib/android /opt/ghc
         sudo -E apt-get -qq update
         sudo -E apt-get -qq install $DEPENDS 
@@ -107,12 +114,8 @@ jobs:
         git clone https://github.com/$REPO_USE -b $REPO_BRANCH openwrt
         ln -sf /workdir/openwrt $GITHUB_WORKSPACE/openwrt
 
-        # 若指定了 commit 提个醒
-        if [ "$USE_COMMIT_SHA" == "latest" ]; then
-          LATEST_SHA=$(curl "https://api.github.com/repos/$REPO_USE/commits/$REPO_BRANCH" | grep sha | head -n1 | cut -d\" -f4)
-          echo "::notice title=Using latest commit::https://github.com/$REPO_USE/tree/$LATEST_SHA"
-        else
-          echo "::notice title=Using specific commit::https://github.com/$REPO_USE/tree/"$USE_COMMIT_SHA""
+        # 若指定了 commit
+        if [ "$USE_COMMIT_SHA" != "latest" ]; then
           cd openwrt
           git checkout "$USE_COMMIT_SHA"
           cd ..
@@ -155,9 +158,9 @@ jobs:
       run: |
         cd openwrt
         make defconfig
-        # 提示设备名
+        # 从DIY_P2_SH中截取型号信息
         grep '^CONFIG_TARGET.*DEVICE.*=y' .config | sed -r 's/.*DEVICE_(.*)=y/\1/' > DEVICE_NAME
-        [ -s DEVICE_NAME ] && echo "::notice title=Device Name:: $(cat DEVICE_NAME)" && echo "DEVICE_NAME=$(cat DEVICE_NAME)" >> $GITHUB_ENV
+        [ -s DEVICE_NAME ] && echo "::notice title=Device@.config:: $(cat DEVICE_NAME)" && echo "DEVICE_NAME=$(cat DEVICE_NAME)" >> $GITHUB_ENV
         echo ============diff.config=============
         ./scripts/diffconfig.sh
         echo ====================================

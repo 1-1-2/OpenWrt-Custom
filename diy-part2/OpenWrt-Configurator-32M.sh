@@ -87,7 +87,7 @@ config_clean() {
     #=========================================
     cat >> .config << EOF
 CONFIG_STRIP_KERNEL_EXPORTS=y
-# CONFIG_USE_MKLIBS=y
+# CONFIG_USE_MKLIBS is not set
 EOF
     #=========================================
     # Luci
