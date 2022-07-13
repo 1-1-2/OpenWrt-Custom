@@ -1,0 +1,277 @@
+#
+# Copyright (c) 2019-2020 P3TERX <https://p3terx.com>
+#
+# This is free software, licensed under the MIT License.
+# See /LICENSE for more information.
+#
+# https://github.com/P3TERX/Actions-OpenWrt
+# Description: Build OpenWrt using GitHub Actions
+#
+
+name: Image Build AIO
+
+on:
+  repository_dispatch:
+  workflow_dispatch:
+    inputs:
+      device_choice:
+        description: '选择型号(device-env.sh中的编号)'
+        required: false
+        default: 5
+        type: number
+      config_tag:
+        description: '选择配置的版本(clean|basic|func|test)'
+        required: false
+        default: 'func'
+      use_cache:
+        description: '尝试使用缓存的tool和toolchain'
+        required: false
+        default: true
+        type: boolean
+      COMMIT_SHA:
+        description: '使用指定的commit(可选)'
+        required: false
+        default: 'latest'
+      ssh:
+        description: '编译前进行SSH调试'
+        required: false
+        default: false
+        type: boolean
+
+env:
+  # REPO_URL: https://github.com/openwrt/openwrt
+  # REPO_BRANCH: master
+  FEEDS_CONF: feeds.conf.default
+  CONFIG_FILE: .config
+  DIY_P1_SH: diy-part1.sh
+  # DIY_P2_SH: diy-part2/[OpenWrt]RE-SP-01B-part2.sh
+  UPLOAD_BIN_DIR: true
+  UPLOAD_FIRMWARE: true
+  UPLOAD_TRANSFER: true
+  UPLOAD_RELEASE: false
+  TZ: Asia/Shanghai
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    steps:
+    - name: Checkout
+      uses: actions/checkout@main
+
+    - name: Load environment variable
+      run: |
+        chmod +x $GITHUB_WORKSPACE/device-env.sh
+        $GITHUB_WORKSPACE/device-env.sh ${{ inputs.device_choice }}
+
+    - name: Initialization environment
+      env:
+        DEBIAN_FRONTEND: noninteractive
+      run: |
+        # notify config tag
+        echo "::notice title=Image Type:: Build with ${{ inputs.config_tag }} .config"
+        
+        sudo rm -rf /etc/apt/sources.list.d/* /usr/share/dotnet /usr/local/lib/android /opt/ghc
+        sudo -E apt-get -qq update
+        sudo -E apt-get -qq install $DEPENDS 
+        sudo -E apt-get -qq autoremove --purge
+        sudo -E apt-get -qq clean
+        # docker image prune -a -f
+        sudo timedatectl set-timezone "$TZ"
+        sudo mkdir -p /workdir
+        sudo chown $USER:$GROUPS /workdir
+
+    - name: Clone source code
+      working-directory: /workdir
+      run: |
+        df -hT $PWD
+
+        git clone https://github.com/$REPO_USE -b $REPO_BRANCH openwrt
+        ln -sf /workdir/openwrt $GITHUB_WORKSPACE/openwrt
+
+        # 若指定了 commit 提个醒
+        if [ "$USE_COMMIT_SHA" == "latest" ]; then
+          LATEST_SHA=$(curl "https://api.github.com/repos/$REPO_USE/commits/$REPO_BRANCH" | grep sha | head -n1 | cut -d\" -f4)
+          echo "::notice title=Using latest commit::https://github.com/$REPO_USE/tree/$LATEST_SHA"
+        else
+          echo "::notice title=Using specific commit::https://github.com/$REPO_USE/tree/"$USE_COMMIT_SHA""
+          cd openwrt
+          git checkout "$USE_COMMIT_SHA"
+          cd ..
+        fi
+
+    - name: Cache
+      uses: klever1988/cachewrtbuild@main
+      if: ${{ inputs.use_cache }}
+      with:
+        ccache: 'false'
+        prefix: ${{ github.workspace }}/openwrt
+        
+    - name: Load custom feeds
+      run: |
+        [ -e $FEEDS_CONF ] && mv $FEEDS_CONF openwrt/feeds.conf.default
+        chmod +x $DIY_P1_SH
+        cd openwrt
+        $GITHUB_WORKSPACE/$DIY_P1_SH
+
+    - name: Update feeds
+      run: cd openwrt && ./scripts/feeds update -a
+
+    - name: Install feeds
+      run: cd openwrt && ./scripts/feeds install -a
+
+    - name: Load custom configuration
+      run: |
+        [ -e files ] && echo '::notice title=Image Type:: 已启用files大法！' && mv -v files openwrt/files
+        [ -e $CONFIG_FILE ] && mv $CONFIG_FILE openwrt/.config
+        chmod +x "$DIY_P2_SH"
+        cd openwrt
+        # 使用脚本生成配置
+        "$GITHUB_WORKSPACE/$DIY_P2_SH" ${{ inputs.config_tag }}
+        echo ==============.config===============
+        [ -e .config ] && cat .config || echo 'No .config after custom configuration'
+        echo ====================================
+
+    - name: Download package
+      id: download
+      run: |
+        cd openwrt
+        make defconfig
+        # 提示设备名
+        grep '^CONFIG_TARGET.*DEVICE.*=y' .config | sed -r 's/.*DEVICE_(.*)=y/\1/' > DEVICE_NAME
+        [ -s DEVICE_NAME ] && echo "::notice title=Device Name:: $(cat DEVICE_NAME)" && echo "DEVICE_NAME=$(cat DEVICE_NAME)" >> $GITHUB_ENV
+        echo ============diff.config=============
+        ./scripts/diffconfig.sh
+        echo ====================================
+
+        # 下载包，如若出错生成警告
+        # 一轮八线程
+        make download -j8 | tee make_download.log
+        grep 'ERROR:' make_download.log | xargs -i echo "::warning:: [Download Trial 1]" {}
+        find dl -size -1024c -exec ls -l {} \;
+        find dl -size -1024c -exec rm -f {} \;
+        # 二轮单线程
+        grep 'ERROR:' -q -m1 make_download.log && make download -j1 V=s | tee make_download.log
+        grep 'ERROR:' make_download.log | xargs -i echo "::warning:: [Download Trial 2]" {}
+        find dl -size -1024c -exec ls -l {} \;
+        find dl -size -1024c -exec rm -f {} \;
+
+    - name: SSH connection to Actions
+      uses: P3TERX/ssh2actions@v1.0.0
+      if: (github.event.inputs.ssh == 'true' && github.event.inputs.ssh  != 'false') || contains(github.event.action, 'ssh')
+      env:
+        TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+
+    - name: Compile the firmware
+      id: compile
+      run: |
+        cd openwrt
+        echo -e "Initiate initiate. Try $(($(nproc)+1)) thread first..."
+        make -j $(($(nproc)+1)) || make -j1 || make -j1 V=s.
+        echo "FILE_DATE=$(date +"%Y%m%d%H%M")" >> $GITHUB_ENV
+        mv -v .config bin/targets/*/*
+
+    - name: Check space usage
+      if: (!cancelled())
+      run: df -hT
+
+    - name: Upload bin directory
+      uses: actions/upload-artifact@main
+      if: steps.compile.conclusion == 'success' && env.UPLOAD_BIN_DIR == 'true'
+      with:
+        name: OpenWrt_bin_${{ env.DEVICE_NAME }}_${{ env.FILE_DATE }}
+        path: openwrt/bin
+
+    - name: Organize files
+      id: organize
+      if: env.UPLOAD_FIRMWARE == 'true' && !cancelled()
+      run: |
+        cd openwrt/bin/targets/*/*
+        rm -rf packages
+        echo "FIRMWARE=$PWD" >> $GITHUB_ENV
+
+    - name: Upload firmware directory
+      uses: actions/upload-artifact@main
+      if: steps.organize.conclusion == 'success' && !cancelled()
+      with:
+        name: OpenWrt_firmware_${{ env.DEVICE_NAME }}_${{ env.FILE_DATE }}
+        path: ${{ env.FIRMWARE }}
+
+    - name: Upload using file-transfer
+      id: transfer
+      if: steps.organize.conclusion == 'success' && env.UPLOAD_TRANSFER == 'true' && !cancelled()
+      run: |
+        curl -fsSL git.io/file-transfer | sh
+        # 返回链接格式：【 Download Link: https://we.tl/t-fLXXXXXXzJ 】
+
+        touch release.txt
+        # to cowtransfer
+        # ./transfer cow --block 2621440 -s -p 64 --no-progress ${FIRMWARE} 2>&1 | tee transfer.cow.log
+        # echo "::notice title=@cowtransfer.com::$(cat cowtransfer.log | grep https)"
+        # echo "🔗 [Cowtransfer]($(cat transfer.cow.log | grep https | cut -f3 -d' '))" >> release.txt
+
+        # to wetransfer(2GB)
+        (
+          ./transfer wet -s -p 16 --no-progress ${FIRMWARE} 2>&1 | tee transfer.wet.log
+          echo "::notice title=@wetransfer.com::$(cat transfer.wet.log | grep https)"
+          echo "🔗 [WeTransfer]($(cat transfer.wet.log | grep https | cut -f3 -d' '))" >> release.txt
+        ) &
+        # to Wenshushu(2GB)
+        (
+          ./transfer wss -s -p 16 --no-progress ${FIRMWARE} 2>&1 | tee transfer.wss.log
+          echo "::notice title=@wenshushu.cn::$(cat transfer.wss.log | grep https)"
+          echo "🔗 [Wenshushu]($(cat transfer.wss.log | grep https | cut -f3 -d' '))" >> release.txt
+        ) &
+        # to LitterBox(1GB)
+        (
+          ./transfer lit -s -p 16 --no-progress ${FIRMWARE} 2>&1 | tee transfer.lit.log
+          echo "::notice title=@litterbox.catbox.moe::$(cat transfer.lit.log | grep https)"
+          echo "🔗 [LitterBox]($(cat transfer.lit.log | grep https | cut -f3 -d' '))" >> release.txt
+        ) &
+        # to 1Fichier(300GB)
+        (
+          ./transfer fic -s -p 16 --no-progress ${FIRMWARE} 2>&1 | tee transfer.fic.log
+          echo "::notice title=@1fichier.com::$(cat transfer.fic.log | grep https)"
+          echo "🔗 [1Fichier]($(cat transfer.fic.log | grep https | cut -f3 -d' '))" >> release.txt
+        ) &
+        # to Musetransfer(5GB)
+        (
+          ./transfer muse -s -p 16 --no-progress ${FIRMWARE} 2>&1 | tee transfer.muse.log
+          echo "::notice title=@musetransfer.com::$(cat transfer.muse.log | grep https)"
+          echo "🔗 [Musetransfer]($(cat transfer.muse.log | grep https | cut -f3 -d' '))" >> release.txt
+        ) &
+        # to Anonfile(10GB)
+        (
+          ./transfer anon -s -p 16 --no-progress ${FIRMWARE} 2>&1 | tee transfer.anon.log
+          echo "::notice title=@anonfile.com::$(cat transfer.anon.log | grep https)"
+          echo "🔗 [Anonfile]($(cat transfer.anon.log | grep https | cut -f3 -d' '))" >> release.txt
+        ) &
+
+        wait
+        # for release
+        echo "::set-output name=release_tag::$(date +"%Y.%m.%d-%H%M")"
+
+    - name: Upload firmware to release
+      uses: softprops/action-gh-release@v1
+      if: steps.transfer.conclusion == 'success' && !cancelled()
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ steps.transfer.outputs.release_tag }}
+        body_path: release.txt
+        files: ${{ env.FIRMWARE }}/*
+
+    - name: Delete workflow runs
+      uses: Mattraks/delete-workflow-runs@main
+      with:
+        retain_days: 30
+        keep_minimum_runs: 5
+
+    - name: Remove old Releases
+      uses: dev-drprasad/delete-older-releases@v0.2.0
+      if: env.UPLOAD_RELEASE == 'true' && !cancelled()
+      with:
+        keep_latest: 3
+        delete_tags: true
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
