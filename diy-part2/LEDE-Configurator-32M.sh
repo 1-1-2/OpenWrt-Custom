@@ -33,6 +33,14 @@ EOF
     cat >> .config << EOF
 # ----------luci-app-ssr-plus
 # CONFIG_PACKAGE_luci-app-ssr-plus is not set
+
+EOF
+    #=========================================
+    # unset some default to avoid duplication
+    #=========================================
+    cat >> .config << EOF
+# CONFIG_PACKAGE_luci-app-passwall_Transparent_Proxy is not set
+# CONFIG_PACKAGE_luci-app-passwall2_Transparent_Proxy is not set
 EOF
 }
 
