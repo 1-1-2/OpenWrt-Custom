@@ -28,7 +28,7 @@ on:
         required: false
         default: true
         type: boolean
-      COMMIT_SHA:
+      commit_sha:
         description: '使用指定的commit(可选)'
         required: false
         default: 'latest'
@@ -43,6 +43,7 @@ env:
   # REPO_BRANCH: master
   FEEDS_CONF: feeds.conf.default
   CONFIG_FILE: .config
+  COMMIT_SHA: ${{ inputs.commit_sha }}
   DIY_P1_SH: diy-part1.sh
   # DIY_P2_SH: diy-part2/[OpenWrt]RE-SP-01B-part2.sh
   UPLOAD_BIN_DIR: true
@@ -52,11 +53,29 @@ env:
   TZ: Asia/Shanghai
 
 jobs:
+  init:
+    runs-on: ubuntu-22.04
+    outputs:
+      DEVICE_TAG: ${{steps.job_tag.outputs.DEVICE_TAG}}
+    steps:
+    - uses: actions/checkout@main
+    
+    - name: Load environment variable
+      run: |
+        chmod +x $GITHUB_WORKSPACE/device-env.sh
+        $GITHUB_WORKSPACE/device-env.sh ${{ inputs.device_choice }}
+        
+    - id: job_tag
+      run: |
+        echo "::set-output name=DEVICE_TAG::$DEVICE_TAG"
+        echo "::notice title=Device Tag:: $DEVICE_TAG"
+
   build:
     runs-on: ubuntu-22.04
+    needs: init
+    name: ${{needs.init.outputs.DEVICE_TAG}}
     steps:
-    - name: Checkout
-      uses: actions/checkout@main
+    - uses: actions/checkout@main
 
     - name: Load environment variable
       run: |
@@ -67,7 +86,7 @@ jobs:
       env:
         DEBIAN_FRONTEND: noninteractive
       run: |
-        # notify config tag
+        # notifications
         echo "::notice title=Image Type:: Build with ${{ inputs.config_tag }} .config"
         
         sudo rm -rf /etc/apt/sources.list.d/* /usr/share/dotnet /usr/local/lib/android /opt/ghc
@@ -205,47 +224,48 @@ jobs:
         # 返回链接格式：【 Download Link: https://we.tl/t-fLXXXXXXzJ 】
 
         touch release.txt
-        # to cowtransfer
+        # echo cowtransfer
+        # (
         # ./transfer cow --block 2621440 -s -p 64 --no-progress ${FIRMWARE} 2>&1 | tee transfer.cow.log
         # echo "::notice title=@cowtransfer.com::$(cat cowtransfer.log | grep https)"
         # echo "🔗 [Cowtransfer]($(cat transfer.cow.log | grep https | cut -f3 -d' '))" >> release.txt
-
-        # to wetransfer(2GB)
+        # ) 
+        echo wetransfer(2GB)
         (
-          ./transfer wet -s -p 16 --no-progress ${FIRMWARE} 2>&1 | tee transfer.wet.log
+          ./transfer wet -s -p 8 --no-progress ${FIRMWARE} 2>&1 | tee transfer.wet.log
           echo "::notice title=@wetransfer.com::$(cat transfer.wet.log | grep https)"
           echo "🔗 [WeTransfer]($(cat transfer.wet.log | grep https | cut -f3 -d' '))" >> release.txt
-        ) &
-        # to Wenshushu(2GB)
+        ) 
+        echo Wenshushu(2GB)
         (
-          ./transfer wss -s -p 16 --no-progress ${FIRMWARE} 2>&1 | tee transfer.wss.log
+          ./transfer wss -s -p 8 --no-progress ${FIRMWARE} 2>&1 | tee transfer.wss.log
           echo "::notice title=@wenshushu.cn::$(cat transfer.wss.log | grep https)"
           echo "🔗 [Wenshushu]($(cat transfer.wss.log | grep https | cut -f3 -d' '))" >> release.txt
-        ) &
-        # to LitterBox(1GB)
+        ) 
+        echo LitterBox(1GB)
         (
-          ./transfer lit -s -p 16 --no-progress ${FIRMWARE} 2>&1 | tee transfer.lit.log
+          ./transfer lit --no-progress ${FIRMWARE} 2>&1 | tee transfer.lit.log
           echo "::notice title=@litterbox.catbox.moe::$(cat transfer.lit.log | grep https)"
           echo "🔗 [LitterBox]($(cat transfer.lit.log | grep https | cut -f3 -d' '))" >> release.txt
-        ) &
-        # to 1Fichier(300GB)
+        ) 
+        echo 1Fichier(300GB)
         (
-          ./transfer fic -s -p 16 --no-progress ${FIRMWARE} 2>&1 | tee transfer.fic.log
+          ./transfer fic --no-progress ${FIRMWARE} 2>&1 | tee transfer.fic.log
           echo "::notice title=@1fichier.com::$(cat transfer.fic.log | grep https)"
           echo "🔗 [1Fichier]($(cat transfer.fic.log | grep https | cut -f3 -d' '))" >> release.txt
-        ) &
-        # to Musetransfer(5GB)
+        ) 
+        echo Musetransfer(5GB)
         (
-          ./transfer muse -s -p 16 --no-progress ${FIRMWARE} 2>&1 | tee transfer.muse.log
+          ./transfer muse -s -p 8 --no-progress ${FIRMWARE} 2>&1 | tee transfer.muse.log
           echo "::notice title=@musetransfer.com::$(cat transfer.muse.log | grep https)"
           echo "🔗 [Musetransfer]($(cat transfer.muse.log | grep https | cut -f3 -d' '))" >> release.txt
-        ) &
-        # to Anonfile(10GB)
+        ) 
+        echo Anonfile(10GB)
         (
-          ./transfer anon -s -p 16 --no-progress ${FIRMWARE} 2>&1 | tee transfer.anon.log
+          ./transfer anon --no-progress ${FIRMWARE} 2>&1 | tee transfer.anon.log
           echo "::notice title=@anonfile.com::$(cat transfer.anon.log | grep https)"
           echo "🔗 [Anonfile]($(cat transfer.anon.log | grep https | cut -f3 -d' '))" >> release.txt
-        ) &
+        ) 
 
         wait
         # for release
@@ -260,7 +280,7 @@ jobs:
 
     - name: Upload firmware to release
       uses: softprops/action-gh-release@v1
-      if: steps.transfer.conclusion == 'success' && !cancelled()
+      if: env.UPLOAD_RELEASE == 'true' && steps.transfer.conclusion == 'success' && !cancelled()
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
