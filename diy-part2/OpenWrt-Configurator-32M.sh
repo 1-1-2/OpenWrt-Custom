@@ -27,6 +27,7 @@ add_packages(){
 	# M2. 拉取专门的luci包到package文件夹
 	# M3. 修正语言名（zh-cn -> zh_Hans），更新feeds索引，安装feeds
 	#=========================================
+	[ -e is_add_packages ] && echo Add packages is done already. && return 0
 	
 	# M1
 	echo '从 lean 那里借个 luci-app-vsftpd'
@@ -75,6 +76,9 @@ add_packages(){
     # 最后更新一下索引和安装一下包
 	./scripts/feeds update -i luci packages
 	./scripts/feeds install -a
+
+	# 已修改标志（其实也就DEBUG的时候有用）
+	touch is_add_packages
 }
 
 config_clean() {
@@ -91,6 +95,13 @@ EOF
     cat >> .config << EOF
 CONFIG_PACKAGE_luci=y
 CONFIG_LUCI_LANG_zh_Hans=y
+EOF
+    #=========================================
+    # unset some default to avoid duplication
+    #=========================================
+    cat >> .config << EOF
+# CONFIG_PACKAGE_luci-app-passwall_Transparent_Proxy is not set
+# CONFIG_PACKAGE_luci-app-passwall2_Transparent_Proxy is not set
 EOF
 }
 
