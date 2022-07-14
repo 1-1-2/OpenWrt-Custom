@@ -1,0 +1,21 @@
+## sizetest 冲突记录
+## https://github.com/1-1-2/OpenWrt-Custom/actions/runs/2669199453
+
+[Test 7, @ DNS_luci-app-dnsfilter]
+[Test 31, @ SCI_luci-app-bypass]
+[Test 33, @ SCI_luci-app-openclash]
+[Test 37, @ SCI_luci-app-ssr-plus]
+[Test 38, @ SCI_luci-app-vssr]
+dnsmasq-full , but dnsmasq exist.
+
+[Test 32, @ SCI_luci-app-clash]
+libustream-openssl20201210 , but libustream-wolfssl20201210 exist.
+
+ * check_data_file_clashes: Package libustream-openssl20201210 wants to install file /workdir/openwrt/build_dir/target-mipsel_24kc_musl/root-ramips/lib/libustream-ssl.so
+	But that file is already provided by package  * libustream-wolfssl20201210
+
+[Test 60, @ NET_luci-app-easymesh]
+wpad-mesh-openssl, but wpad-mesh-wolfssl exist.
+ * check_conflicts_for: The following packages conflict with wpad-basic-wolfssl:
+ * check_conflicts_for: 	wpad-mesh-openssl * 
+ * opkg_install_cmd: Cannot install package wpad-basic-wolfssl.
