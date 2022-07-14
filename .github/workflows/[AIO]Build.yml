@@ -69,15 +69,14 @@ jobs:
       run: |
         # notifications
         echo "::set-output name=DEVICE_TAG::$DEVICE_TAG"
-        echo "::notice title=Device Tag:: $DEVICE_TAG"
-        echo "::notice title=Image Type:: Build with ${{ inputs.config_tag }} .config"
+        echo "::notice title=Device Tag:: $DEVICE_TAG with ${{ inputs.config_tag }} .config"
        
         # 若指定了 commit 提个醒
         if [ "$USE_COMMIT_SHA" == "latest" ]; then
           LATEST_SHA=$(curl "https://api.github.com/repos/$REPO_USE/commits/$REPO_BRANCH" | grep sha | head -n1 | cut -d\" -f4)
-          echo "::notice title=Using latest commit::https://github.com/$REPO_USE/tree/$LATEST_SHA"
+          echo "::notice title=Using commit::[latest] https://github.com/$REPO_USE/tree/$LATEST_SHA"
         else
-          echo "::notice title=Using specific commit::https://github.com/$REPO_USE/tree/$USE_COMMIT_SHA"
+          echo "::notice title=Using commit::[specific] https://github.com/$REPO_USE/tree/$USE_COMMIT_SHA"
         fi
 
   build:
@@ -87,12 +86,12 @@ jobs:
     steps:
     - uses: actions/checkout@main
 
-    - name: Load environment variable
+    - name: Load Environment Variable
       run: |
         chmod +x $GITHUB_WORKSPACE/device-env.sh
         $GITHUB_WORKSPACE/device-env.sh ${{ inputs.device_choice }}
 
-    - name: Initialization environment
+    - name: Initialize Environment
       env:
         DEBIAN_FRONTEND: noninteractive
       run: |
@@ -106,7 +105,7 @@ jobs:
         sudo mkdir -p /workdir
         sudo chown $USER:$GROUPS /workdir
 
-    - name: Clone source code
+    - name: Clone Source Code
       working-directory: /workdir
       run: |
         df -hT $PWD
@@ -128,20 +127,20 @@ jobs:
         ccache: 'false'
         prefix: ${{ github.workspace }}/openwrt
         
-    - name: Load custom feeds
+    - name: Load Custom Feeds
       run: |
         [ -e $FEEDS_CONF ] && mv $FEEDS_CONF openwrt/feeds.conf.default
         chmod +x $DIY_P1_SH
         cd openwrt
         $GITHUB_WORKSPACE/$DIY_P1_SH
 
-    - name: Update feeds
+    - name: Update Feeds
       run: cd openwrt && ./scripts/feeds update -a
 
-    - name: Install feeds
+    - name: Install Feeds
       run: cd openwrt && ./scripts/feeds install -a
 
-    - name: Load custom configuration
+    - name: Load Custom Configuration
       run: |
         [ -e files ] && echo '::notice title=Image Type:: 已启用files大法！' && mv -v files openwrt/files
         [ -e $CONFIG_FILE ] && mv $CONFIG_FILE openwrt/.config
@@ -153,7 +152,7 @@ jobs:
         [ -e .config ] && cat .config || echo 'No .config after custom configuration'
         echo ====================================
 
-    - name: Download package
+    - name: Download Packages
       id: download
       run: |
         cd openwrt
@@ -177,14 +176,14 @@ jobs:
         find dl -size -1024c -exec ls -l {} \;
         find dl -size -1024c -exec rm -f {} \;
 
-    - name: SSH before compile
+    - name: SSH Before Compile
       uses: P3TERX/ssh2actions@v1.0.0
       if: (github.event.inputs.ssh == 'true' && github.event.inputs.ssh  != 'false') || contains(github.event.action, 'ssh')
       env:
         TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
 
-    - name: Compile the firmware
+    - name: Compile
       id: compile
       run: |
         cd openwrt
@@ -193,18 +192,18 @@ jobs:
         echo "FILE_DATE=$(date +"%Y%m%d%H%M")" >> $GITHUB_ENV
         mv -v .config bin/targets/*/*
 
-    - name: Check space usage
+    - name: Check Space Usage
       if: (!cancelled())
       run: df -hT
 
-    - name: Upload bin directory
+    - name: Upload Bin Directory
       uses: actions/upload-artifact@main
       if: steps.compile.conclusion == 'success' && env.UPLOAD_BIN_DIR == 'true'
       with:
         name: OpenWrt_bin_${{ env.DEVICE_NAME }}_${{ env.FILE_DATE }}
         path: openwrt/bin
 
-    - name: Organize files
+    - name: Organize Files
       id: organize
       if: env.UPLOAD_FIRMWARE == 'true' && !cancelled()
       run: |
@@ -212,14 +211,14 @@ jobs:
         rm -rf packages
         echo "FIRMWARE=$PWD" >> $GITHUB_ENV
 
-    - name: Upload firmware directory
+    - name: Upload Firmware Directory
       uses: actions/upload-artifact@main
       if: steps.organize.conclusion == 'success' && !cancelled()
       with:
         name: OpenWrt_firmware_${{ env.DEVICE_NAME }}_${{ env.FILE_DATE }}
         path: ${{ env.FIRMWARE }}
 
-    - name: Upload using file-transfer
+    - name: Upload Using File-transfer
       id: transfer
       if: steps.organize.conclusion == 'success' && env.UPLOAD_TRANSFER == 'true' && !cancelled()
       run: |
@@ -227,61 +226,61 @@ jobs:
         # 返回链接格式：【 Download Link: https://we.tl/t-fLXXXXXXzJ 】
 
         touch release.txt
-        # echo cowtransfer
+        # echo 'cowtransfer(need login)'
         # (
         # ./transfer cow --block 2621440 -s -p 64 --no-progress ${FIRMWARE} 2>&1 | tee transfer.cow.log
         # echo "::notice title=@cowtransfer.com::$(cat cowtransfer.log | grep https)"
         # echo "🔗 [Cowtransfer]($(cat transfer.cow.log | grep https | cut -f3 -d' '))" >> release.txt
         # ) 
-        echo wetransfer(2GB)
+        echo 'wetransfer(2GB)'
         (
           ./transfer wet -s -p 8 --no-progress ${FIRMWARE} 2>&1 | tee transfer.wet.log
           echo "::notice title=@wetransfer.com::$(cat transfer.wet.log | grep https)"
           echo "🔗 [WeTransfer]($(cat transfer.wet.log | grep https | cut -f3 -d' '))" >> release.txt
         ) 
-        echo Wenshushu(2GB)
+        echo 'Wenshushu(2GB)'
         (
           ./transfer wss -s -p 8 --no-progress ${FIRMWARE} 2>&1 | tee transfer.wss.log
           echo "::notice title=@wenshushu.cn::$(cat transfer.wss.log | grep https)"
           echo "🔗 [Wenshushu]($(cat transfer.wss.log | grep https | cut -f3 -d' '))" >> release.txt
         ) 
-        echo LitterBox(1GB)
+        echo 'LitterBox(1GB)'
         (
           ./transfer lit --no-progress ${FIRMWARE} 2>&1 | tee transfer.lit.log
           echo "::notice title=@litterbox.catbox.moe::$(cat transfer.lit.log | grep https)"
           echo "🔗 [LitterBox]($(cat transfer.lit.log | grep https | cut -f3 -d' '))" >> release.txt
         ) 
-        echo 1Fichier(300GB)
+        echo '1Fichier(300GB)'
         (
           ./transfer fic --no-progress ${FIRMWARE} 2>&1 | tee transfer.fic.log
           echo "::notice title=@1fichier.com::$(cat transfer.fic.log | grep https)"
           echo "🔗 [1Fichier]($(cat transfer.fic.log | grep https | cut -f3 -d' '))" >> release.txt
         ) 
-        echo Musetransfer(5GB)
+        echo 'Musetransfer(5GB)'
         (
           ./transfer muse -s -p 8 --no-progress ${FIRMWARE} 2>&1 | tee transfer.muse.log
           echo "::notice title=@musetransfer.com::$(cat transfer.muse.log | grep https)"
           echo "🔗 [Musetransfer]($(cat transfer.muse.log | grep https | cut -f3 -d' '))" >> release.txt
-        ) 
-        echo Anonfile(10GB)
+        )
+        echo 'Anonfile(10GB)'
         (
           ./transfer anon --no-progress ${FIRMWARE} 2>&1 | tee transfer.anon.log
           echo "::notice title=@anonfile.com::$(cat transfer.anon.log | grep https)"
           echo "🔗 [Anonfile]($(cat transfer.anon.log | grep https | cut -f3 -d' '))" >> release.txt
-        ) 
+        )
 
         wait
         # for release
         echo "::set-output name=release_tag::$(date +"%Y.%m.%d-%H%M")"
 
-    - name: SSH after compile
+    - name: SSH After Compile
       uses: P3TERX/ssh2actions@v1.0.0
       if: ${{ failure() }}
       env:
         TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
 
-    - name: Upload firmware to release
+    - name: Upload Firmware to Release
       uses: softprops/action-gh-release@v1
       if: env.UPLOAD_RELEASE == 'true' && steps.transfer.conclusion == 'success' && !cancelled()
       env:
@@ -291,13 +290,13 @@ jobs:
         body_path: release.txt
         files: ${{ env.FIRMWARE }}/*
 
-    - name: Delete workflow runs
+    - name: Delete Workflow Runs
       uses: Mattraks/delete-workflow-runs@main
       with:
         retain_days: 30
         keep_minimum_runs: 5
 
-    - name: Remove old Releases
+    - name: Remove Old Releases
       uses: dev-drprasad/delete-older-releases@v0.2.0
       if: env.UPLOAD_RELEASE == 'true' && !cancelled()
       with:

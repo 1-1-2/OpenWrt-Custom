@@ -71,7 +71,7 @@ add_packages(){
 
     # 解决无法正确识别出简体中文语言包的问题
     # ref: https://github.com/ysc3839/luci-proto-minieap/pull/2
-    find -type d -path '*/po/zh-cn' | xargs dirname | xargs -I'{}' ln -vfs {}/zh-cn {}/zh_Hans
+    find -type d -path '*/po/zh-cn' | xargs dirname | xargs -I'{}' ln -srvn {}/zh-cn {}/zh_Hans
 
     # 最后更新一下索引和安装一下包
 	./scripts/feeds update -i luci packages
