@@ -333,7 +333,7 @@ jobs:
               echo 补丁不是 .conifg 的子集！以下 patch 行未在 .config 中找到
               echo $subset_check
               echo "=====================EOF======================="
-              echo "::warning title=Test ${test_no}, ${title}:: Patch is not a subset of .config, please check..."
+              echo "::warning title=Test ${test_no} ${title}:: Patch is not a subset of .config, please check..."
             fi
 
             # 执行编译
@@ -343,7 +343,7 @@ jobs:
             # 根据第一节管道返回值判断编译结果
             if [ ${PIPESTATUS[0]} -ne 0 ]; then
               # Exception
-              echo "::error title=Test ${test_no}, ${title}:: Error(s) occurred during compile, please check..."
+              echo "::error title=Test ${test_no} ${title}:: Error(s) occurred during compile, please check..."
               touch "${TEST_RESULT_DIR}/test_failed"
 
               # 保留配置文件
