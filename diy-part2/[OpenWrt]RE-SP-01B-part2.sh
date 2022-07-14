@@ -52,7 +52,8 @@ target_inf() {
 
     # load dts
     echo '载入 mt7621_jdcloud_re-sp-01b.dts'
-    curl --retry 3 -s "https://gist.githubusercontent.com/1-1-2/335dbc8e138f39fb8fe6243d424fe476/raw/[openwrt]mt7621_jdcloud_re-sp-01b.dts" -o target/linux/ramips/dts/mt7621_jdcloud_re-sp-01b.dts
+    curl --retry 3 -s --globoff "https://gist.githubusercontent.com/1-1-2/335dbc8e138f39fb8fe6243d424fe476/raw/[openwrt]mt7621_jdcloud_re-sp-01b.dts" -o target/linux/ramips/dts/mt7621_jdcloud_re-sp-01b.dts
+    ls -l target/linux/ramips/dts/mt7621_jdcloud_re-sp-01b.dts
 
     # fix2 + fix4.2
     echo '修补 mt7621.mk'

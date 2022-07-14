@@ -40,28 +40,27 @@ jobs:
   init:
     runs-on: ubuntu-22.04
     outputs:
-      DEVICE_TAG: ${{steps.job_tag.outputs.DEVICE_TAG}}
+      DEVICE_TAG: ${{steps.job_tagging.outputs.DEVICE_TAG}}
     steps:
     - uses: actions/checkout@main
     
-    - name: Load environment variable
+    - name: Load Environment Variable
       run: |
         chmod +x $GITHUB_WORKSPACE/device-env.sh
         $GITHUB_WORKSPACE/device-env.sh ${{ inputs.device_choice }}
         
-    - id: job_tag
+    - id: job_tagging
       run: |
         # notifications
         echo "::set-output name=DEVICE_TAG::$DEVICE_TAG"
-        echo "::notice title=Device Tag:: $DEVICE_TAG"
-        echo "::notice title=Image Type:: Build with ${{ inputs.config_tag }} .config"
+        echo "::notice title=Device Tag:: $DEVICE_TAG with ${{ inputs.config_tag }} .config"
 
         # 若指定了 commit 提个醒
         if [ "$USE_COMMIT_SHA" == "latest" ]; then
           LATEST_SHA=$(curl "https://api.github.com/repos/$REPO_USE/commits/$REPO_BRANCH" | grep sha | head -n1 | cut -d\" -f4)
-          echo "::notice title=Using latest commit::https://github.com/$REPO_USE/tree/$LATEST_SHA"
+          echo "::notice title=Using commit::[latest] https://github.com/$REPO_USE/tree/$LATEST_SHA"
         else
-          echo "::notice title=Using specific commit::https://github.com/$REPO_USE/tree/$USE_COMMIT_SHA"
+          echo "::notice title=Using commit::[specific] https://github.com/$REPO_USE/tree/$USE_COMMIT_SHA"
         fi
 
   Factory:
@@ -74,7 +73,7 @@ jobs:
     steps:
       - uses: actions/checkout@main
 
-      - name: Load environment variable
+      - name: Load Environment Variable
         id: load_env
         run: |
           chmod +x $GITHUB_WORKSPACE/device-env.sh
@@ -100,7 +99,7 @@ jobs:
           [ -s DEVICE_NAME ] && echo "::notice title=Device@.config:: $(cat DEVICE_NAME)" && echo "DEVICE_NAME=$(cat DEVICE_NAME)" >> $GITHUB_ENV
 
       # 分任务
-      - name: Assign jobs
+      - name: Assign Jobs
         id: set-matrix
         run: |
           # cd $GITHUB_WORKSPACE
@@ -176,6 +175,12 @@ jobs:
     steps:
       - uses: actions/checkout@main
 
+      - name: Load Environment Variable
+        id: load_env
+        run: |
+          chmod +x $GITHUB_WORKSPACE/device-env.sh
+          $GITHUB_WORKSPACE/device-env.sh ${{ inputs.device_choice }}
+          
       - name: Read Job Sequence
         run: |
           # 依据作业分配到的行号，截取对应序列输出到文件
@@ -186,7 +191,7 @@ jobs:
           echo "====================测试目录(计数器初始值为${First_Job_No})===================="
           grep '@' JobTest.list -n | cat -n
 
-      - name: Initialize environment
+      - name: Initialize Environment
         env:
           DEBIAN_FRONTEND: noninteractive
         run: |
@@ -200,7 +205,7 @@ jobs:
           sudo mkdir -p /workdir
           sudo chown $USER:$GROUPS /workdir
 
-      - name: Clone source code
+      - name: Clone Source Code
         working-directory: /workdir
         run: |
           git clone https://github.com/$REPO_USE -b $REPO_BRANCH openwrt
@@ -225,14 +230,14 @@ jobs:
           ccache: 'false'
           prefix: ${{ github.workspace }}/openwrt
 
-      - name: Load custom feeds
+      - name: Load Custom Feeds
         run: |
           [ -e $FEEDS_CONF ] && mv $FEEDS_CONF openwrt/feeds.conf.default
           chmod +x $DIY_P1_SH
           cd openwrt
           $GITHUB_WORKSPACE/$DIY_P1_SH
 
-      - name: Update & Install feeds
+      - name: Update & Install Feeds
         working-directory: /workdir/openwrt
         run: |
           ./scripts/feeds update -a
@@ -242,7 +247,7 @@ jobs:
           echo "[Check space usage] $PWD"
           du -h --max-depth=1
 
-      - name: Download All package
+      - name: Download Packages
         id: download
         run: |
           [ -e files ] && mv files openwrt/files
@@ -271,7 +276,7 @@ jobs:
           echo "[Check space usage] $PWD"
           du -h --max-depth=1
 
-      - name: Compile & Log filesize
+      - name: Compile & Log Filesize
         id: compile
         working-directory: /workdir/openwrt
         run: |
