@@ -226,48 +226,67 @@ jobs:
         # 返回链接格式：【 Download Link: https://we.tl/t-fLXXXXXXzJ 】
 
         touch release.txt
+        echo 'wetransfer(2GB)'
+        (
+          ./transfer wet -s -p 4 --no-progress ${FIRMWARE} 2>&1 | tee transfer.wet.log
+          echo "::notice title=@wetransfer.com::$(cat transfer.wet.log | grep https)"
+          echo "🔗 [WeTransfer]($(cat transfer.wet.log | grep https | cut -f3 -d' '))" >> release.txt
+        ) 
+        echo 'Musetransfer(10GB)'
+        (
+          ./transfer muse -s -p 4 --no-progress ${FIRMWARE} 2>&1 | tee transfer.muse.log
+          echo "::notice title=@musetransfer.com::$(cat transfer.muse.log | grep https)"
+          echo "🔗 [Musetransfer]($(cat transfer.muse.log | grep https | cut -f3 -d' '))" >> release.txt
+        )
+        echo 'GoFile(-)'
+        (
+          ./transfer gof -s --no-progress ${FIRMWARE} 2>&1 | tee transfer.gof.log
+          echo "::notice title=@gofile.io::$(cat transfer.gof.log | grep https)"
+          echo "🔗 [GoFile]($(cat transfer.gof.log | grep https | cut -f3 -d' '))" >> release.txt
+        )
+        # echo 'DownloadGG(25GB, no single mode yet)'
+        # (
+        #   ./transfer gg --no-progress ${FIRMWARE} 2>&1 | tee transfer.gg.log
+        #   echo "::notice title=@download.gg::$(cat transfer.gg.log | grep https)"
+        #   echo "🔗 [DownloadGG]($(cat transfer.gg.log | grep https | cut -f3 -d' '))" >> release.txt
+        # )
+        # echo 'Wenshushu(2GB, meet captcha)'
+        # echo ref: https://github.com/Mikubill/transfer/issues/55
+        # (
+        #   ./transfer wss -s -p 4 --no-progress ${FIRMWARE} 2>&1 | tee transfer.wss.log
+        #   echo "::notice title=@wenshushu.cn::$(cat transfer.wss.log | grep https)"
+        #   echo "🔗 [Wenshushu]($(cat transfer.wss.log | grep https | cut -f3 -d' '))" >> release.txt
+        # ) 
         # echo 'cowtransfer(need login)'
         # (
         # ./transfer cow --block 2621440 -s -p 64 --no-progress ${FIRMWARE} 2>&1 | tee transfer.cow.log
         # echo "::notice title=@cowtransfer.com::$(cat cowtransfer.log | grep https)"
         # echo "🔗 [Cowtransfer]($(cat transfer.cow.log | grep https | cut -f3 -d' '))" >> release.txt
         # ) 
-        echo 'wetransfer(2GB)'
-        (
-          ./transfer wet -s -p 8 --no-progress ${FIRMWARE} 2>&1 | tee transfer.wet.log
-          echo "::notice title=@wetransfer.com::$(cat transfer.wet.log | grep https)"
-          echo "🔗 [WeTransfer]($(cat transfer.wet.log | grep https | cut -f3 -d' '))" >> release.txt
-        ) 
-        echo 'Wenshushu(2GB)'
-        (
-          ./transfer wss -s -p 8 --no-progress ${FIRMWARE} 2>&1 | tee transfer.wss.log
-          echo "::notice title=@wenshushu.cn::$(cat transfer.wss.log | grep https)"
-          echo "🔗 [Wenshushu]($(cat transfer.wss.log | grep https | cut -f3 -d' '))" >> release.txt
-        ) 
-        echo 'LitterBox(1GB)'
-        (
-          ./transfer lit --no-progress ${FIRMWARE} 2>&1 | tee transfer.lit.log
-          echo "::notice title=@litterbox.catbox.moe::$(cat transfer.lit.log | grep https)"
-          echo "🔗 [LitterBox]($(cat transfer.lit.log | grep https | cut -f3 -d' '))" >> release.txt
-        ) 
-        echo '1Fichier(300GB)'
-        (
-          ./transfer fic --no-progress ${FIRMWARE} 2>&1 | tee transfer.fic.log
-          echo "::notice title=@1fichier.com::$(cat transfer.fic.log | grep https)"
-          echo "🔗 [1Fichier]($(cat transfer.fic.log | grep https | cut -f3 -d' '))" >> release.txt
-        ) 
-        echo 'Musetransfer(5GB)'
-        (
-          ./transfer muse -s -p 8 --no-progress ${FIRMWARE} 2>&1 | tee transfer.muse.log
-          echo "::notice title=@musetransfer.com::$(cat transfer.muse.log | grep https)"
-          echo "🔗 [Musetransfer]($(cat transfer.muse.log | grep https | cut -f3 -d' '))" >> release.txt
-        )
-        echo 'Anonfile(10GB)'
-        (
-          ./transfer anon --no-progress ${FIRMWARE} 2>&1 | tee transfer.anon.log
-          echo "::notice title=@anonfile.com::$(cat transfer.anon.log | grep https)"
-          echo "🔗 [Anonfile]($(cat transfer.anon.log | grep https | cut -f3 -d' '))" >> release.txt
-        )
+        # echo 'LitterBox(1GB, no single mode)'
+        # (
+        #   ./transfer lit --no-progress ${FIRMWARE} 2>&1 | tee transfer.lit.log
+        #   echo "::notice title=@litterbox.catbox.moe::$(cat transfer.lit.log | grep https)"
+        #   echo "🔗 [LitterBox]($(cat transfer.lit.log | grep https | cut -f3 -d' '))" >> release.txt
+        # ) 
+        # echo '1Fichier(300GB, no single mode)'
+        # (
+        #   ./transfer fic --no-progress ${FIRMWARE} 2>&1 | tee transfer.fic.log
+        #   echo "::notice title=@1fichier.com::$(cat transfer.fic.log | grep https)"
+        #   echo "🔗 [1Fichier]($(cat transfer.fic.log | grep https | cut -f3 -d' '))" >> release.txt
+        # ) 
+        # echo 'Anonfile(10GB, no single mode)'
+        # (
+        #   ./transfer anon --no-progress ${FIRMWARE} 2>&1 | tee transfer.anon.log
+        #   echo "::notice title=@anonfile.com::$(cat transfer.anon.log | grep https)"
+        #   echo "🔗 [Anonfile]($(cat transfer.anon.log | grep https | cut -f3 -d' '))" >> release.txt
+        # )
+        # echo 'Transfer.sh(-, will be zip/tar)'
+        # (
+        #   ./transfer trs -s --no-progress ${FIRMWARE} 2>&1 | tee transfer.trs.log
+        #   echo "::notice title=@Transfer.sh::$(cat transfer.trs.log | grep https)"
+        #   echo "🔗 [Transfer.sh]($(cat transfer.trs.log | grep https | cut -f3 -d' '))" >> release.txt
+        # )
 
         wait
         # for release
