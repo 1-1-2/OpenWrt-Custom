@@ -295,6 +295,7 @@ jobs:
           uptime_log () { while :; do uptime >> ${ARTIFACTS_DIR}/uptime_log/worker_${Worker_ID}.log; sleep 15; done }
           uptime_log &
 
+          # 依次执行任务列表
           test_no=$((First_Job_No-1))                           # 轮次计数器初始化，因为一开始就++所以先-1
           for patch_file in config_seq/patch*
           do
@@ -303,7 +304,7 @@ jobs:
             title=$(head "${patch_file}" -n1)                   # 原汁原味的标题，保留所有特殊符号
             echo "[Test No.$((++test_no))] $title, start at $(date +"%Y-%m-%d %H:%M")"
 
-            cp -vf clean.config .config                          # 起点，重置为基准配置
+            cp -vf clean.config .config                         # 起点，重置为基准配置
             echo "============[Test $test_no] Patch Content============"
             sed '/@/d' "${patch_file}" | tee -a .config         # 去掉标题行，增写配置
             echo "===============[Test $test_no] .config==============="
@@ -324,15 +325,15 @@ jobs:
 
             # 补全默认值
             make defconfig
-            # 分析配置文件中是否存在目标内容——合并、排序、去重、是否增加？
-            sed '/@/d' "${patch_file}" > patch_content.tmp
-            num1=$(cat .config | wc -l)
-            num2=$(sort .config patch_content.tmp | uniq -d | wc -l)
-            if [ $num1 -eq $num2 ];then
-              echo 补丁是配置文件的子集
+            # 分析配置文件是否包含补丁
+            subset_check=$(comm -23 <(sed '/@/d' "${patch_file}" | sort | uniq) <(sort .config | uniq) | tee patch.dup | head -1)
+            if [[ -z $subset_check ]]; then
+              echo 补丁是 .conifg 的子集
             else
-              echo 补丁不是配置文件的子集！
-              echo "::warning:: [Test ${test_no}, ${title}] Patch is not a subset of .config, please check..."
+              echo 补丁不是 .conifg 的子集！以下 patch 行未在 .config 中找到
+              echo $subset_check
+              echo "=====================EOF======================="
+              echo "::warning title=Test ${test_no}, ${title}:: Patch is not a subset of .config, please check..."
             fi
 
             # 执行编译
@@ -342,7 +343,7 @@ jobs:
             # 根据第一节管道返回值判断编译结果
             if [ ${PIPESTATUS[0]} -ne 0 ]; then
               # Exception
-              echo "::warning:: [Test ${test_no}, ${title}] Error(s) occurred during compile, please check..."
+              echo "::error title=Test ${test_no}, ${title}:: Error(s) occurred during compile, please check..."
               touch "${TEST_RESULT_DIR}/test_failed"
 
               # 保留配置文件

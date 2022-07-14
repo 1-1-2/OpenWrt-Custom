@@ -20,6 +20,15 @@ cat << EOF
 =========================================
 EOF
 
+modification() {
+	# 一些可能必要的修改
+	echo '尝试更换 luci-app-clash 的依赖 openssl 为 wolfssl 看能不能通过编译'
+    find -type f -path '*/luci-app-clash/Makefile' -print -exec sed -i 's/openssl/wolfssl/w /dev/stdout' {} \;
+
+	echo '尝试更换 luci-app-easymesh 的依赖 openssl 为 wolfssl 看能不能通过编译'
+    find -type f -path '*/luci-app-easymesh/Makefile' -print -exec sed -i 's/openssl/wolfssl/w /dev/stdout' {} \;
+}
+
 add_packages(){
 	#=========================================
 	# 两种方式（没有本质上的区别）：
@@ -42,16 +51,16 @@ add_packages(){
 
 	exist_sed(){
 		if [ -f "$1" ]; then
-			cp "$1" tmp/before_mod.bak
+			cp -f "$1" tmp/exist_sed.before
 			sed -i 's/services/nas/' "$1"
-			echo "将$(basename "$1" | cut -d. -f1)从services移动到了nas"
-			diff tmp/before_mod.bak "$1"
-			echo '---EOF---'
+			echo "将 $(basename "$1" | cut -d. -f1) 从 services 移动到 nas" [$1]
+			diff tmp/exist_sed.before "$1"
+          	echo "=====================EOF======================="
 		else
 			echo 没找到$1
 		fi
 	}
-	echo 'luci-app-vsftpd定义了一级菜单<nas>，顺便修改一些菜单入口到该菜单'
+	echo 'luci-app-vsftpd 定义了一级菜单 <nas>，顺便修改一些菜单入口到该菜单'
 	exist_sed feeds/luci/applications/luci-app-ksmbd/root/usr/share/luci/menu.d/luci-app-ksmbd.json
 	exist_sed feeds/luci/applications/luci-app-hd-idle/root/usr/share/luci/menu.d/luci-app-hd-idle.json
 	exist_sed feeds/luci/applications/luci-app-aria2/root/usr/share/luci/menu.d/luci-app-aria2.json
@@ -65,7 +74,7 @@ add_packages(){
 
 	echo '从 lean 那里借一个自动外存挂载 automount'
 	svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/automount lean/automount
-	sed -i 's/ +ntfs3-mount//' lean/automount/Makefile      # 去掉不存在的包
+	sed -i 's/ +ntfs3-mount//w /dev/stdout' lean/automount/Makefile      # 去掉不存在的包
 
 	cd ..
 
@@ -79,6 +88,7 @@ add_packages(){
 
 	# 已修改标志（其实也就DEBUG的时候有用）
 	touch is_add_packages
+	modification
 }
 
 config_clean() {
@@ -102,6 +112,14 @@ EOF
     cat >> .config << EOF
 # CONFIG_PACKAGE_luci-app-passwall_Transparent_Proxy is not set
 # CONFIG_PACKAGE_luci-app-passwall2_Transparent_Proxy is not set
+EOF
+    #=========================================
+    # use dnsmasq-full as default instead of
+    # dnsmasq to avoid potential conflicts
+    #=========================================
+    cat >> .config << EOF
+# CONFIG_PACKAGE_dnsmasq is not set
+CONFIG_PACKAGE_dnsmasq-full=y
 EOF
 }
 
@@ -177,7 +195,6 @@ CONFIG_PACKAGE_luci-app-nps=y
 CONFIG_PACKAGE_luci-app-frpc=y
 # ----------luci-app-openclash
 CONFIG_PACKAGE_luci-app-openclash=y
-# CONFIG_PACKAGE_dnsmasq is not set
 # ----------network-firewall-ip6tables-ip6tables-mod-nat
 # CONFIG_PACKAGE_ip6tables-mod-nat=y
 # ----------luci-app-transmission
