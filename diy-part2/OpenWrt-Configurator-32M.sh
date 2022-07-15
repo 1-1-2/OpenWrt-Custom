@@ -22,18 +22,21 @@ EOF
 
 modification() {
 	# 一些可能必要的修改
-	echo '尝试更换 luci-app-clash 的依赖 openssl 为 wolfssl 看能不能通过编译'
+	echo '[MOD]更换 luci-app-clash 的依赖 openssl 为 wolfssl'
     find -type f -path '*/luci-app-clash/Makefile' -print -exec sed -i 's/openssl/wolfssl/w /dev/stdout' {} \;
 
-	echo '尝试更换 luci-app-easymesh 的依赖 openssl 为 wolfssl 看能不能通过编译'
+	echo '[MOD]更换 luci-app-easymesh 的依赖 openssl 为 wolfssl'
     find -type f -path '*/luci-app-easymesh/Makefile' -print -exec sed -i 's/openssl/wolfssl/w /dev/stdout' {} \;
+
+	echo '[MOD]除去 luci-app-dockerman 的架构限制'
+    find -type f -path '*/luci-app-dockerman/Makefile' -print -exec sed -i 's#^.*LUCI_DEPENDS.*$#LUCI_DEPENDS:=\\#w /dev/stdout' {} \;
 }
 
 add_packages(){
 	#=========================================
 	# 两种方式（没有本质上的区别）：
 	# M1. 从别的(类)OpenWrt源码仓库部分借用，放到feeds文件夹(通常为feeds/luci)
-	# M2. 拉取专门的luci包到package文件夹
+	# M2. 拉取专门的luci包到package文件夹（注意 /package 与 /feeds/packages 的区别）
 	# M3. 修正语言名（zh-cn -> zh_Hans），更新feeds索引，安装feeds
 	#=========================================
 	[ -e is_add_packages ] && echo Add packages is done already. && return 0
@@ -75,6 +78,9 @@ add_packages(){
 	echo '从 lean 那里借一个自动外存挂载 automount'
 	svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/automount lean/automount
 	sed -i 's/ +ntfs3-mount//w /dev/stdout' lean/automount/Makefile      # 去掉不存在的包
+
+	echo '拉取 maxlicheng/luci-app-unblockmusic'
+	git clone https://github.com/maxlicheng/luci-app-unblockmusic.git
 
 	cd ..
 

@@ -1,0 +1,64 @@
+## luci-app-unblockneteasemusic
+
+Source-Makefile: package/feeds/kenzo/luci-app-unblockneteasemusic/Makefile
+Build-Depends: lua/host luci-base/host LUCI_CSSTIDY:csstidy/host LUCI_SRCDIET:luasrcdiet/host
+
+Package: luci-app-unblockneteasemusic
+Submenu: 3. Applications
+Version: 2.13
+Depends: +libc +USE_GLIBC:librt +USE_GLIBC:libpthread +busybox +dnsmasq-full +ipset +jsonfilter +node +uclient-fetch +PACKAGE_firewall4:ucode @(PACKAGE_libustream-mbedtls||PACKAGE_libustream-openssl||PACKAGE_libustream-wolfssl)
+Conflicts:
+Menu-Depends:
+Provides:
+Section: luci
+Category: LuCI
+Repository: kenzo
+Title: LuCI support for UnblockNeteaseMusic
+Maintainer: OpenWrt LuCI community
+Source:
+Type: ipkg
+Description: LuCI support for UnblockNeteaseMusic
+https://github.com/openwrt/luci
+OpenWrt LuCI community
+
+62180         config PACKAGE_luci-app-unblockneteasemusic
+62181                 tristate "luci-app-unblockneteasemusic........ LuCI support for UnblockNeteaseMusic"
+62182                 default y if DEFAULT_luci-app-unblockneteasemusic
+62183                 default m if ALL
+62184                 select PACKAGE_ucode if PACKAGE_firewall4
+62185                 select PACKAGE_librt if USE_GLIBC
+62186                 depends on HAS_FPU
+62187                 select PACKAGE_jsonfilter
+62188                 depends on (PACKAGE_libustream-mbedtls||PACKAGE_libustream-openssl||PACKAGE_libustream-wolfssl)
+62189                 select PACKAGE_libc
+62190                 depends on (i386||x86_64||arm||aarch64||mipsel)
+62191                 select PACKAGE_node
+62192                 select PACKAGE_libpthread if USE_GLIBC
+62193                 select PACKAGE_dnsmasq-full
+62194                 select PACKAGE_busybox if PACKAGE_busybox-selinux<PACKAGE_luci-app-unblockneteasemusic
+62195                 select PACKAGE_uclient-fetch
+62196                 select PACKAGE_ipset
+62197                 help
+62198                  LuCI support for UnblockNeteaseMusic
+62199                  https://github.com/openwrt/luci
+62200                  OpenWrt LuCI community
+
+Symbol: PACKAGE_UnblockNeteaseMusic [=n]
+Type  : tristate
+Defined at tmp/.config-package.in:97432
+  Prompt: UnblockNeteaseMusic.................. Revive Netease Cloud Music (NodeJS)
+  Depends on: (i386 [=n] || x86_64 [=n] || arm [=n] || aarch64 [=n] || mipsel [=y]) && HAS_FPU [=n]
+  Location:
+(1) -> Multimedia
+Selects: PACKAGE_libc [=y] && PACKAGE_libpthread [=y] && PACKAGE_librt [=y] && PACKAGE_node [=n]
+
+
+Symbol: PACKAGE_luci-app-unblockneteasemusic [=n]
+Type  : tristate
+Defined at tmp/.config-package.in:62180
+  Prompt: luci-app-unblockneteasemusic........ LuCI support for UnblockNeteaseMusic
+  Depends on: HAS_FPU [=n] && (PACKAGE_libustream-mbedtls [=n] || PACKAGE_libustream-openssl [=n] || PACKAGE_libustream-wolfssl [=y]) && (i386 [=n] || x86_64 [=n] || arm [=n] || aarch64 [=n] || mipsel [=y])
+  Location:
+    -> LuCI
+(2)   -> 3. Applications
+Selects: PACKAGE_ucode [=y] && PACKAGE_librt [=y] && PACKAGE_jsonfilter [=y] && PACKAGE_libc [=y] && PACKAGE_node [=n] && PACKAGE_libpthread [=y] && PACKAGE_dnsmasq-full [=y] && PACKAGE_busybox [=y] && PACKAGE_uclient-fetch [=y]
