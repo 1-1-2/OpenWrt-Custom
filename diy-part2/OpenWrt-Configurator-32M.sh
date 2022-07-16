@@ -29,7 +29,11 @@ modification() {
     find -type f -path '*/luci-app-easymesh/Makefile' -print -exec sed -i 's/openssl/wolfssl/w /dev/stdout' {} \;
 
 	echo '[MOD]除去 luci-app-dockerman 的架构限制'
-    find -type f -path '*/luci-app-dockerman/Makefile' -print -exec sed -i 's#^.*LUCI_DEPENDS.*$#LUCI_DEPENDS:=\\#w /dev/stdout' {} \;
+    find -type f -path '*/luci-app-dockerman/Makefile' -print -exec sed -i 's#@(aarch64||arm||x86_64)##w /dev/stdout' {} \;
+    find -type f -path '*/luci-lib-docker/Makefile' -print -exec sed -i 's#@(aarch64||arm||x86_64)##w /dev/stdout' {} \;
+
+	echo '[MOD]使能 SOFT_FLOAT 环境下的 node'
+    [ -e feeds/packages/lang/node/Makefile ] && sed -i 's/HAS_FPU/(HAS_FPU||SOFT_FLOAT)/w /dev/stdout' feeds/packages/lang/node/Makefile
 }
 
 add_packages(){
@@ -42,10 +46,15 @@ add_packages(){
 	[ -e is_add_packages ] && echo Add packages is done already. && return 0
 	
 	# M1
-	echo '从 lean 那里借个 luci-app-vsftpd'
-	svn co https://github.com/coolsnowwolf/luci/trunk/applications/luci-app-vsftpd feeds/luci/applications/luci-app-vsftpd
-	echo '还有依赖 vsftpd-alt'
-	svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/vsftpd-alt package/lean/vsftpd-alt
+    echo '从 lean 那里借个 luci-app-vsftpd'
+    svn co https://github.com/coolsnowwolf/luci/trunk/applications/luci-app-vsftpd feeds/luci/applications/luci-app-vsftpd
+    echo '还有依赖 vsftpd-alt'
+    svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/vsftpd-alt package/lean/vsftpd-alt
+    echo '从 lean 那里借个 luci-app-unblockmusic'
+    svn co https://github.com/coolsnowwolf/luci/trunk/applications/luci-app-unblockmusic feeds/luci/applications/luci-app-unblockmusic
+    echo '还有依赖 UnblockNeteaseMusic 和 UnblockNeteaseMusic-Go'
+    svn co https://github.com/coolsnowwolf/packages/trunk/multimedia/UnblockNeteaseMusic feeds/packages/multimedia/UnblockNeteaseMusic
+    svn co https://github.com/coolsnowwolf/packages/trunk/multimedia/UnblockNeteaseMusic-Go feeds/packages/multimedia/UnblockNeteaseMusic-Go
 
 	echo '从天灵那里借个 luci-app-nps'
 	svn co https://github.com/immortalwrt/luci/trunk/applications/luci-app-nps feeds/luci/applications/luci-app-nps
@@ -79,22 +88,20 @@ add_packages(){
 	svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/automount lean/automount
 	sed -i 's/ +ntfs3-mount//w /dev/stdout' lean/automount/Makefile      # 去掉不存在的包
 
-	echo '拉取 maxlicheng/luci-app-unblockmusic'
-	git clone https://github.com/maxlicheng/luci-app-unblockmusic.git
-
 	cd ..
 
     # 解决无法正确识别出简体中文语言包的问题
     # ref: https://github.com/ysc3839/luci-proto-minieap/pull/2
     find -type d -path '*/po/zh-cn' | xargs dirname | xargs -I'{}' ln -srvn {}/zh-cn {}/zh_Hans
 
-    # 最后更新一下索引和安装一下包
-	./scripts/feeds update -i luci packages
+    # 修改一些依赖
+	modification
+    # 最后[强制]更新一下索引和安装一下包
+	./scripts/feeds update -ifa
 	./scripts/feeds install -a
 
 	# 已修改标志（其实也就DEBUG的时候有用）
 	touch is_add_packages
-	modification
 }
 
 config_clean() {
