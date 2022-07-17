@@ -11,13 +11,30 @@
 
 cat << EOF
 =======OpenWrt-Configurator-32M.sh=======
-	functions loaded:
-		1. config_func
-		2. config_basic
-		3. config_clean
-		4. config_test
+    functions loaded:
+        1. add_packages, modification
+        2. config_func
+        3. config_basic
+        4. config_clean
+        5. config_test
 =========================================
 EOF
+
+modification() {
+    # 一些可能必要的修改
+    echo '[MOD]除去 luci-app-dockerman 的架构限制'
+    find -type f -path '*/luci-lib-docker/Makefile' -print -exec sed -i 's#@(aarch64||arm||x86_64)##w /dev/stdout' {} \;
+}
+
+add_packages(){
+    [ -e is_add_packages ] && echo Add packages is done already. && return 0
+    
+    # 修改一些依赖
+    modification
+    
+    # 已修改标志（其实也就DEBUG的时候有用）
+    touch is_add_packages
+}
 
 config_clean() {
     #=========================================
