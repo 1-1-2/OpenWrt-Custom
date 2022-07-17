@@ -11,41 +11,41 @@
 
 cat << EOF
 =======OpenWrt-Configurator-32M.sh=======
-	functions loaded:
-		1. add_packages
-		2. config_func
-		3. config_basic
-		4. config_clean
-		5. config_test
+    functions loaded:
+        1. add_packages
+        2. config_func
+        3. config_basic
+        4. config_clean
+        5. config_test
 =========================================
 EOF
 
 modification() {
-	# 一些可能必要的修改
-	echo '[MOD]更换 luci-app-clash 的依赖 openssl 为 wolfssl'
+    # 一些可能必要的修改
+    echo '[MOD]更换 luci-app-clash 的依赖 openssl 为 wolfssl'
     find -type f -path '*/luci-app-clash/Makefile' -print -exec sed -i 's/openssl/wolfssl/w /dev/stdout' {} \;
 
-	echo '[MOD]更换 luci-app-easymesh 的依赖 openssl 为 wolfssl'
+    echo '[MOD]更换 luci-app-easymesh 的依赖 openssl 为 wolfssl'
     find -type f -path '*/luci-app-easymesh/Makefile' -print -exec sed -i 's/openssl/wolfssl/w /dev/stdout' {} \;
 
-	echo '[MOD]除去 luci-app-dockerman 的架构限制'
+    echo '[MOD]除去 luci-app-dockerman 的架构限制'
     find -type f -path '*/luci-app-dockerman/Makefile' -print -exec sed -i 's#@(aarch64||arm||x86_64)##w /dev/stdout' {} \;
     find -type f -path '*/luci-lib-docker/Makefile' -print -exec sed -i 's#@(aarch64||arm||x86_64)##w /dev/stdout' {} \;
 
-	echo '[MOD]使能 SOFT_FLOAT 环境下的 node'
+    echo '[MOD]使能 SOFT_FLOAT 环境下的 node'
     [ -e feeds/packages/lang/node/Makefile ] && sed -i 's/HAS_FPU/(HAS_FPU||SOFT_FLOAT)/w /dev/stdout' feeds/packages/lang/node/Makefile
 }
 
 add_packages(){
-	#=========================================
-	# 两种方式（没有本质上的区别）：
-	# M1. 从别的(类)OpenWrt源码仓库部分借用，放到feeds文件夹(通常为feeds/luci)
-	# M2. 拉取专门的luci包到package文件夹（注意 /package 与 /feeds/packages 的区别）
-	# M3. 修正语言名（zh-cn -> zh_Hans），更新feeds索引，安装feeds
-	#=========================================
-	[ -e is_add_packages ] && echo Add packages is done already. && return 0
-	
-	# M1
+    #=========================================
+    # 两种方式（没有本质上的区别）：
+    # M1. 从别的(类)OpenWrt源码仓库部分借用，放到feeds文件夹(通常为feeds/luci)
+    # M2. 拉取专门的luci包到package文件夹（注意 /package 与 /feeds/packages 的区别）
+    # M3. 修正语言名（zh-cn -> zh_Hans），更新feeds索引，安装feeds
+    #=========================================
+    [ -e is_add_packages ] && echo Add packages is done already. && return 0
+    
+    # M1
     echo '从 lean 那里借个 luci-app-vsftpd'
     svn co https://github.com/coolsnowwolf/luci/trunk/applications/luci-app-vsftpd feeds/luci/applications/luci-app-vsftpd
     echo '还有依赖 vsftpd-alt'
@@ -56,52 +56,52 @@ add_packages(){
     svn co https://github.com/coolsnowwolf/packages/trunk/multimedia/UnblockNeteaseMusic feeds/packages/multimedia/UnblockNeteaseMusic
     svn co https://github.com/coolsnowwolf/packages/trunk/multimedia/UnblockNeteaseMusic-Go feeds/packages/multimedia/UnblockNeteaseMusic-Go
 
-	echo '从天灵那里借个 luci-app-nps'
-	svn co https://github.com/immortalwrt/luci/trunk/applications/luci-app-nps feeds/luci/applications/luci-app-nps
-	echo '还有依赖 nps'
-	svn co https://github.com/immortalwrt/packages/trunk/net/nps feeds/packages/net/nps
+    echo '从天灵那里借个 luci-app-nps'
+    svn co https://github.com/immortalwrt/luci/trunk/applications/luci-app-nps feeds/luci/applications/luci-app-nps
+    echo '还有依赖 nps'
+    svn co https://github.com/immortalwrt/packages/trunk/net/nps feeds/packages/net/nps
 
-	exist_sed(){
-		if [ -f "$1" ]; then
-			cp -f "$1" tmp/exist_sed.before
-			sed -i 's/services/nas/' "$1"
-			echo "将 $(basename "$1" | cut -d. -f1) 从 services 移动到 nas" [$1]
-			diff tmp/exist_sed.before "$1"
-          	echo "=====================EOF======================="
-		else
-			echo 没找到$1
-		fi
-	}
-	echo 'luci-app-vsftpd 定义了一级菜单 <nas>，顺便修改一些菜单入口到该菜单'
-	exist_sed feeds/luci/applications/luci-app-ksmbd/root/usr/share/luci/menu.d/luci-app-ksmbd.json
-	exist_sed feeds/luci/applications/luci-app-hd-idle/root/usr/share/luci/menu.d/luci-app-hd-idle.json
-	exist_sed feeds/luci/applications/luci-app-aria2/root/usr/share/luci/menu.d/luci-app-aria2.json
-	exist_sed feeds/luci/applications/luci-app-transmission/root/usr/share/luci/menu.d/luci-app-transmission.json
+    exist_sed(){
+        if [ -f "$1" ]; then
+            cp -f "$1" tmp/exist_sed.before
+            sed -i 's/services/nas/' "$1"
+            echo "将 $(basename "$1" | cut -d. -f1) 从 services 移动到 nas" [$1]
+            diff tmp/exist_sed.before "$1"
+            echo "=====================EOF======================="
+        else
+            echo 没找到$1
+        fi
+    }
+    echo 'luci-app-vsftpd 定义了一级菜单 <nas>，顺便修改一些菜单入口到该菜单'
+    exist_sed feeds/luci/applications/luci-app-ksmbd/root/usr/share/luci/menu.d/luci-app-ksmbd.json
+    exist_sed feeds/luci/applications/luci-app-hd-idle/root/usr/share/luci/menu.d/luci-app-hd-idle.json
+    exist_sed feeds/luci/applications/luci-app-aria2/root/usr/share/luci/menu.d/luci-app-aria2.json
+    exist_sed feeds/luci/applications/luci-app-transmission/root/usr/share/luci/menu.d/luci-app-transmission.json
 
-	# M2
-	cd package
+    # M2
+    cd package
 
-	# echo '从 Hyy2001X 那里借一个改好的 luci-app-npc'
-	# svn co https://github.com/Hyy2001X/AutoBuild-Packages/trunk/luci-app-npc
+    # echo '从 Hyy2001X 那里借一个改好的 luci-app-npc'
+    # svn co https://github.com/Hyy2001X/AutoBuild-Packages/trunk/luci-app-npc
 
-	echo '从 lean 那里借一个自动外存挂载 automount'
-	svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/automount lean/automount
-	sed -i 's/ +ntfs3-mount//w /dev/stdout' lean/automount/Makefile      # 去掉不存在的包
+    echo '从 lean 那里借一个自动外存挂载 automount'
+    svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/automount lean/automount
+    sed -i 's/ +ntfs3-mount//w /dev/stdout' lean/automount/Makefile      # 去掉不存在的包
 
-	cd ..
+    cd ..
 
     # 解决无法正确识别出简体中文语言包的问题
     # ref: https://github.com/ysc3839/luci-proto-minieap/pull/2
     find -type d -path '*/po/zh-cn' | xargs dirname | xargs -I'{}' ln -srvn {}/zh-cn {}/zh_Hans
 
     # 修改一些依赖
-	modification
+    modification
     # 最后[强制]更新一下索引和安装一下包
-	./scripts/feeds update -ifa
-	./scripts/feeds install -a
+    ./scripts/feeds update -ifa
+    ./scripts/feeds install -a
 
-	# 已修改标志（其实也就DEBUG的时候有用）
-	touch is_add_packages
+    # 已修改标志（其实也就DEBUG的时候有用）
+    touch is_add_packages
 }
 
 config_clean() {

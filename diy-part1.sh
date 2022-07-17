@@ -21,7 +21,7 @@
 # add feeds
 #=========================================
 if [ -e feeds.conf.default ]; then
-	cat >> feeds.conf.default << EOF
+    cat >> feeds.conf.default << EOF
 # src-git openclash https://github.com/vernesong/OpenClash.git;master
 # src-git helloworld https://github.com/fw876/helloworld
 # src-git passwall https://github.com/xiaorouji/openwrt-passwall
@@ -31,10 +31,10 @@ src-git kenzo https://github.com/kenzok8/openwrt-packages
 src-git small https://github.com/kenzok8/small
 
 EOF
-	echo 已增补内容至默认源配置文件[feeds.conf.default]
-	echo ===========feeds.conf.default===========
-	cat feeds.conf.default
-	echo ====================================
+    echo 已增补内容至默认源配置文件[feeds.conf.default]
+    echo ===========feeds.conf.default===========
+    cat feeds.conf.default
+    echo ====================================
 else
-	echo 找不到默认源配置文件[feeds.conf.default]
+    echo 找不到默认源配置文件[feeds.conf.default]
 fi
