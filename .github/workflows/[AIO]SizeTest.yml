@@ -381,7 +381,7 @@ jobs:
           # 保留所有的ipk
           cp -uvr ./bin "${ARTIFACTS_DIR}/"
           # 保留测试序列和DIY脚本2
-          cp -v "${GITHUB_WORKSPACE}/${SEQ_FILE}" "${GITHUB_WORKSPACE}/"${DIY_P2_SH}"" "${ARTIFACTS_DIR}/"
+          cp -v "${GITHUB_WORKSPACE}/${SEQ_FILE}" ${GITHUB_WORKSPACE}/"${DIY_P2_SH}" "${ARTIFACTS_DIR}/"
 
           echo "[Check disk usage]"
           df -hT .
