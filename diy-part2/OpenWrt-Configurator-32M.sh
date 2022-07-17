@@ -12,7 +12,7 @@
 cat << EOF
 =======OpenWrt-Configurator-32M.sh=======
     functions loaded:
-        1. add_packages
+        1. add_packages, modification
         2. config_func
         3. config_basic
         4. config_clean
