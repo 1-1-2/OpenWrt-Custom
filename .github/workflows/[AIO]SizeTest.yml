@@ -54,7 +54,7 @@ jobs:
       run: |
         # notifications
         echo "::set-output name=DEVICE_TAG::$DEVICE_TAG"
-        echo "::notice title=Device Tag:: $DEVICE_TAG with ${{ inputs.config_tag }} .config"
+        echo "::notice title=Device Tag::${{ inputs.device_choice }}-$DEVICE_TAG with ${{ inputs.config_tag }} .config"
 
         # 若指定了 commit 提个醒
         if [ "$USE_COMMIT_SHA" == "latest" ]; then
