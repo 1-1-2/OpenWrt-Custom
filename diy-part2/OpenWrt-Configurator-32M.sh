@@ -226,7 +226,6 @@ config_test() {
 CONFIG_PACKAGE_luci-app-ledtrig-rssi=y
 CONFIG_PACKAGE_luci-app-ledtrig-switch=y
 CONFIG_PACKAGE_luci-app-ledtrig-usbport=y
-CONFIG_PACKAGE_luci-app-fileassistant=y
 CONFIG_PACKAGE_luci-app-uhttpd=y
 CONFIG_PACKAGE_luci-app-unblockmusic=y
 CONFIG_PACKAGE_luci-app-adblock=y
