@@ -223,6 +223,15 @@ config_test() {
     # 测试域
     #=========================================
     cat >> .config << EOF
-# CONFIG_PACKAGE_luci-app-verysync=y
+CONFIG_PACKAGE_luci-app-ledtrig-rssi=y
+CONFIG_PACKAGE_luci-app-ledtrig-switch=y
+CONFIG_PACKAGE_luci-app-ledtrig-usbport=y
+CONFIG_PACKAGE_luci-app-fileassistant=y
+CONFIG_PACKAGE_luci-app-uhttpd=y
+CONFIG_PACKAGE_luci-app-unblockmusic=y
+CONFIG_PACKAGE_luci-app-adblock=y
+CONFIG_PACKAGE_luci-app-tinyproxy=y
+CONFIG_PACKAGE_luci-app-wireguard=y
+CONFIG_PACKAGE_tcpdump-mini=y
 EOF
 }
