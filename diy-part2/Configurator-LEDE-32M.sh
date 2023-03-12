@@ -5,12 +5,12 @@
 # This is free software, licensed under the MIT License.
 # See /LICENSE for more information.
 #
-# File name: OpenWrt-Configurator-32M.sh
+# File name: Configurator-OpenWrt-32M.sh
 # Description: OpenWrt .config maker script (for addon&paks) for 32MB(256Mb) flash device
 #
 
 cat << EOF
-=======OpenWrt-Configurator-32M.sh=======
+=======Configurator-OpenWrt-32M.sh=======
     functions loaded:
         1. add_packages, modification
         2. config_func
