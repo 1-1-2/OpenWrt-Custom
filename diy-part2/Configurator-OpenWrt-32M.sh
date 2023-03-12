@@ -206,14 +206,12 @@ CONFIG_PACKAGE_luci-app-aria2=y
 # ----------luci-app-VPNs
 CONFIG_PACKAGE_luci-app-nps=y
 CONFIG_PACKAGE_luci-app-frpc=y
-# ----------luci-app-openclash
-CONFIG_PACKAGE_luci-app-openclash=y
-# ----------network-firewall-ip6tables-ip6tables-mod-nat
-# CONFIG_PACKAGE_ip6tables-mod-nat=y
 # ----------luci-app-transmission
 CONFIG_PACKAGE_luci-app-transmission=y
 # ----------luci-app-watchcat
 CONFIG_PACKAGE_luci-app-watchcat=y
+# ----------iperf3
+CONFIG_PACKAGE_iperf3=y
 EOF
 }
 
@@ -223,6 +221,11 @@ config_test() {
     # 测试域
     #=========================================
     cat >> .config << EOF
+# ----------luci-app-openclash
+CONFIG_PACKAGE_luci-app-openclash=y
+# ----------network-firewall-ip6tables-ip6tables-mod-nat
+# CONFIG_PACKAGE_ip6tables-mod-nat=y
+
 CONFIG_PACKAGE_luci-app-ledtrig-rssi=y
 CONFIG_PACKAGE_luci-app-ledtrig-switch=y
 CONFIG_PACKAGE_luci-app-ledtrig-usbport=y
