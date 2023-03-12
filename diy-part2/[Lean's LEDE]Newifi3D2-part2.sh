@@ -12,7 +12,7 @@
 
 # 载入闪存对应的DIY脚本
 sh_dir=$(dirname "$0")
-. $sh_dir/LEDE-Configurator-32M.sh
+. $sh_dir/Configurator-LEDE-32M.sh
 
 mod_default_config(){
     #=========================================
