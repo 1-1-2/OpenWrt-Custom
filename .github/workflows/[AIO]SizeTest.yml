@@ -53,8 +53,9 @@ jobs:
       id: job_tagging
       run: |
         # notifications
-        echo "::set-output name=DEVICE_TAG::$DEVICE_TAG"
-        echo "::notice title=Device Tag::${{ inputs.device_choice }}-$DEVICE_TAG with ${{ inputs.config_tag }} .config"
+        # echo "::set-output name=DEVICE_TAG::${DEVICE_TAG}"
+        echo "DEVICE_TAG=${DEVICE_TAG}" >> $GITHUB_OUTPUT
+        echo "::notice title=Target::[No.${{ inputs.device_choice }}]${DEVICE_TAG} with ${{ inputs.config_tag }}.config"
 
         # 若指定了 commit 提个醒
         if [ "$USE_COMMIT_SHA" == "latest" ]; then
@@ -87,7 +88,8 @@ jobs:
 
         # 时间戳，组成Artifact的文件名
         date +"%Y%m%d%H%M"
-        echo "::set-output name=TimeStamp::$(date +"%Y%m%d%H%M")"
+        # echo "::set-output name=TimeStamp::$(date +"%Y%m%d%H%M")"
+        echo "TimeStamp=$(date +"%Y.%m.%d-%H%M")" >> $GITHUB_OUTPUT
 
         # 打印序列信息和目录
         echo '====================序列内容===================='
@@ -161,7 +163,8 @@ jobs:
         json_content=${json_content%?}']}'
         echo "[json_content] ${json_content}"
         # 输出到output作为matrix
-        echo "::set-output name=json_content::${json_content}"
+        # echo "::set-output name=json_content::${json_content}"
+        echo "json_content=${json_content}" >> $GITHUB_OUTPUT
 
   Workers:
     runs-on: ubuntu-22.04
@@ -289,7 +292,8 @@ jobs:
         # 创建产物目录
         ARTIFACTS_DIR=$(mkdir ARTIFACTS_DIR; cd ARTIFACTS_DIR; pwd)
         echo "[ARTIFACTS_DIR]${ARTIFACTS_DIR}"
-        echo "::set-output name=ARTIFACTS_DIR::${ARTIFACTS_DIR}"
+        # echo "::set-output name=ARTIFACTS_DIR::${ARTIFACTS_DIR}"
+        echo "ARTIFACTS_DIR=${ARTIFACTS_DIR}" >> $GITHUB_OUTPUT
 
         # 后台记录CPU占用
         mkdir ${ARTIFACTS_DIR}/uptime_log
