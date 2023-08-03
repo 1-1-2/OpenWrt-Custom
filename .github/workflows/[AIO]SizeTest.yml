@@ -31,6 +31,7 @@ env:
   # REPO_BRANCH: master
   FEEDS_CONF: feeds.conf.default
   CONFIG_FILE: .config
+  COMMIT_SHA: ${{ inputs.commit_sha }}
   DIY_P1_SH: diy-part1.sh
   # DIY_P2_SH: ${{ inputs.DIY_P2_FILE }}
   TZ: Asia/Shanghai
