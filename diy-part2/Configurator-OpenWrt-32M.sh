@@ -22,18 +22,28 @@ EOF
 
 modification() {
     # 一些可能必要的修改
-    echo '[MOD]更换 luci-app-clash 的依赖 openssl 为 wolfssl'
-    find -type f -path '*/luci-app-clash/Makefile' -print -exec sed -i 's/openssl/wolfssl/w /dev/stdout' {} \;
+    echo '[MOD]更换 luci-app-clash 的依赖 openssl 为 mbedtls'
+    find -type f -path '*/luci-app-clash/Makefile' -print -exec sed -i 's/openssl/mbedtls/w /dev/stdout' {} \;
 
-    echo '[MOD]更换 luci-app-easymesh 的依赖 openssl 为 wolfssl'
-    find -type f -path '*/luci-app-easymesh/Makefile' -print -exec sed -i 's/openssl/wolfssl/w /dev/stdout' {} \;
+    echo '[MOD]更换 luci-app-easymesh 的依赖 openssl 为 mbedtls'
+    find -type f -path '*/luci-app-easymesh/Makefile' -print -exec sed -i 's/openssl/mbedtls/w /dev/stdout' {} \;
 
     echo '[MOD]除去 luci-app-dockerman 的架构限制'
     find -type f -path '*/luci-app-dockerman/Makefile' -print -exec sed -i 's#@(aarch64||arm||x86_64)##w /dev/stdout' {} \;
     find -type f -path '*/luci-lib-docker/Makefile' -print -exec sed -i 's#@(aarch64||arm||x86_64)##w /dev/stdout' {} \;
 
-    echo '[MOD]使能 SOFT_FLOAT 环境下的 node'
-    [ -e feeds/packages/lang/node/Makefile ] && sed -i 's/HAS_FPU/(HAS_FPU||SOFT_FLOAT)/w /dev/stdout' feeds/packages/lang/node/Makefile
+    # echo '[MOD]使能 SOFT_FLOAT 环境下的 node'
+    # [ -e feeds/packages/lang/node/Makefile ] && sed -i 's/HAS_FPU/(HAS_FPU||SOFT_FLOAT)/w /dev/stdout' feeds/packages/lang/node/Makefile
+    echo '[MOD]把 node 替换成 lean 的'
+    rm -rf feeds/packages/lang/node
+    svn co https://github.com/coolsnowwolf/packages/trunk/lang/node feeds/packages/lang/node
+
+    echo '[FIX]PKG_USE_MIPS16已被openwrt主线弃用，修改外部包的 PKG_USE_MIPS16:=0 为 PKG_BUILD_FLAGS:=no-mips16'
+    find -type f -name Makefile | xargs -i sh -c 'echo -n "[{}]\t"; sed -i "/PKG_USE_MIPS16:=0/{
+s//PKG_BUILD_FLAGS:=no-mips16/g
+w /dev/stdout
+}" {}'
+
 }
 
 add_packages(){
