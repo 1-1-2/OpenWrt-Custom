@@ -32,8 +32,17 @@ modification() {
     find -type f -path '*/luci-app-dockerman/Makefile' -print -exec sed -i 's#@(aarch64||arm||x86_64)##w /dev/stdout' {} \;
     find -type f -path '*/luci-lib-docker/Makefile' -print -exec sed -i 's#@(aarch64||arm||x86_64)##w /dev/stdout' {} \;
 
-    echo '[MOD]使能 SOFT_FLOAT 环境下的 node'
-    [ -e feeds/packages/lang/node/Makefile ] && sed -i 's/HAS_FPU/(HAS_FPU||SOFT_FLOAT)/w /dev/stdout' feeds/packages/lang/node/Makefile
+    if [ -e feeds/packages/lang/node/Makefile ]; then
+    	echo '[MOD]使能 SOFT_FLOAT 环境下的 node'
+    	cd feeds/packages/lang/node
+        sed -e 's/HAS_FPU/(HAS_FPU||SOFT_FLOAT)/' \
+            -e '\#^CONFIGURE_ARGS:= \\#a\	$(if $(findstring mips,$(NODEJS_CPU)), $(if $(CONFIG_SOFT_FLOAT),--with-mips-float-abi=soft)) \\' \
+            Makefile > Makefile.mod
+        diff -u2 Makefile Makefile.mod
+        echo "=====================EOdiff======================="
+        mv -f Makefile.mod Makefile
+        cd -
+    fi
     # echo '[MOD]把 node 替换成 lean 的'
     # rm -rf feeds/packages/lang/node
     # svn co https://github.com/coolsnowwolf/packages/trunk/lang/node feeds/packages/lang/node
@@ -77,7 +86,7 @@ add_packages(){
             sed -i 's/services/nas/' "$1"
             echo "将 $(basename "$1" | cut -d. -f1) 从 services 移动到 nas" [$1]
             diff tmp/exist_sed.before "$1"
-            echo "=====================EOF======================="
+            echo "=====================EOdiff======================="
         else
             echo 没找到$1
         fi
