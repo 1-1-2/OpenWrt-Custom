@@ -297,9 +297,8 @@ jobs:
         echo "ARTIFACTS_DIR=${ARTIFACTS_DIR}" >> $GITHUB_OUTPUT
 
         # 后台记录CPU占用
-        mkdir ${ARTIFACTS_DIR}/uptime_log
-        uptime_log () { while :; do uptime >> ${ARTIFACTS_DIR}/uptime_log/worker_${Worker_ID}.log; sleep 15; done }
-        uptime_log &
+        mkdir ${ARTIFACTS_DIR}/vmstat_log
+        vmstat 10 >> ${ARTIFACTS_DIR}/vmstat_log/worker_${Worker_ID}.log &
 
         # 依次执行任务列表
         test_no=$((First_Job_No-1))                           # 轮次计数器初始化，因为一开始就++所以先-1
@@ -345,7 +344,7 @@ jobs:
           # 执行编译
           echo "[Test ${test_no}] Try $(($(nproc)+1)) thread compile first" | tee "$TEST_LOG_FILE"
           # try
-          ( make -j $(($(nproc)+1)) || make -j1 || make -j1 V=s ) | tee -a "$TEST_LOG_FILE"
+          ( make -j $(($(nproc)+1)) || make -j1 || make -j1 V=s ) 2>&1 | tee -a "$TEST_LOG_FILE"
           # 根据第一节管道返回值判断编译结果
           if [ ${PIPESTATUS[0]} -ne 0 ]; then
             # Exception
