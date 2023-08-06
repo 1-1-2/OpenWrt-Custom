@@ -26,9 +26,10 @@ if [ -e feeds.conf.default ]; then
 # src-git helloworld https://github.com/fw876/helloworld
 # src-git passwall https://github.com/xiaorouji/openwrt-passwall
 # 包含 openclash , SSR+ 和 passwall 等
-src-git kenzo https://github.com/kenzok8/openwrt-packages
+src-git kenzo https://github.com/kenzok8/small-package
+# src-git kenzo https://github.com/kenzok8/openwrt-packages
 # passwall 等的依赖
-src-git small https://github.com/kenzok8/small
+# src-git small https://github.com/kenzok8/small
 
 EOF
     echo 已增补内容至默认源配置文件[feeds.conf.default]

@@ -61,28 +61,31 @@ modification() {
         fi
     ' sh {} \;
 
-    echo 'luci-app-vsftpd 定义了一级菜单 <nas>，顺便修改一些菜单入口到该菜单'
-    exist_sed() {
-        if [ -f "$1" ]; then
-            cp -f "$1" tmp/exist_sed.before
-            sed -i 's/services/nas/' "$1"
-            echo "将 $(basename "$1" | cut -d. -f1) 从 services 移动到 nas" [$1]
-            diff tmp/exist_sed.before "$1"
-            echo "=====================EOdiff======================="
+    # 修改入口
+    change_entry() {
+        if [ -f "$3" ]; then
+            echo "将 $(basename "$3" | cut -d. -f1) 从 $1 移动到 $2" [$3]
+            sed -i "s/$1/$2/w /dev/stdout" "$3"
         else
-            echo 没找到$1
+            echo 找不到文件: $3
         fi
     }
-    exist_sed feeds/luci/applications/luci-app-ksmbd/root/usr/share/luci/menu.d/luci-app-ksmbd.json
-    exist_sed feeds/luci/applications/luci-app-hd-idle/root/usr/share/luci/menu.d/luci-app-hd-idle.json
-    exist_sed feeds/luci/applications/luci-app-aria2/root/usr/share/luci/menu.d/luci-app-aria2.json
-    exist_sed feeds/luci/applications/luci-app-transmission/root/usr/share/luci/menu.d/luci-app-transmission.json
+    echo 'luci-app-vsftpd 定义了一级菜单 <nas>'
+    change_entry services nas feeds/luci/applications/luci-app-ksmbd/root/usr/share/luci/menu.d/luci-app-ksmbd.json
+    change_entry services nas feeds/luci/applications/luci-app-hd-idle/root/usr/share/luci/menu.d/luci-app-hd-idle.json
+    change_entry services nas feeds/luci/applications/luci-app-aria2/root/usr/share/luci/menu.d/luci-app-aria2.json
+    change_entry services nas feeds/luci/applications/luci-app-transmission/root/usr/share/luci/menu.d/luci-app-transmission.json
 
-    echo 'luci-app-n2n 定义了一级菜单 <VPN>，把 nps 也搬进去'
-    sed -i 's/services/vpn/w /dev/stdout' feeds/luci/applications/luci-app-nps/luasrc/controller/nps.lua
+    echo 'luci-app-n2n 定义了一级菜单 <VPN>'
+    change_entry services vpn feeds/kenzo/luci-app-npc/luasrc/controller/npc.lua
+    change_entry services vpn feeds/kenzo/luci-app-udp2raw/files/luci/controller/udp2raw.lua
+    change_entry services vpn feeds/luci/applications/luci-app-nps/luasrc/controller/nps.lua
+    change_entry services vpn package/luci-app-kcptun/luasrc/controller/kcptun.lua
+    change_entry services vpn package/luci-app-tinyfecvpn/files/luci/controller/tinyfecvpn.lua
 
     echo '把 luci-app-nft-qos 从 <services> 搬到 <network>'
-    sed -i 's/services/network/w /dev/stdout' feeds/luci/applications/luci-app-nft-qos/luasrc/controller/nft-qos.lua
+    change_entry services network feeds/luci/applications/luci-app-nft-qos/luasrc/controller/nft-qos.lua
+    echo "=====================End Of Entry Change======================="
 }
 
 add_packages() {
@@ -112,8 +115,8 @@ add_packages() {
     echo '还有依赖 nps 和 n2n'
     svn co https://github.com/immortalwrt/packages/trunk/net/nps feeds/packages/net/nps
     svn co https://github.com/immortalwrt/packages/trunk/net/n2n feeds/packages/net/n2n
-    echo '还有 tinyfecvpn(by Yu Wang)'
-    svn co https://github.com/immortalwrt/packages/trunk/net/tinyfecvpn feeds/packages/net/tinyfecvpn
+    # echo '还有 tinyfecvpn(by Yu Wang)'
+    # svn co https://github.com/immortalwrt/packages/trunk/net/tinyfecvpn feeds/packages/net/tinyfecvpn
     # M1 END
 
     # M2 START
@@ -132,9 +135,14 @@ add_packages() {
     mkdir -p package/parted && \
     wget https://raw.githubusercontent.com/lisaac/luci-app-diskman/master/Parted.Makefile -O parted/Makefile
     
-    # echo 'tinyfecvpn(by Yu Wang)'
-    # mkdir tinyfecvpn && \
-    # wget https://gist.githubusercontent.com/1-1-2/4009f064cf994ecbe0b0cf87a2c15599/raw/tinyfecVPN.Makefile -O tinyfecvpn/Makefile
+    echo '从我的 gist 加载更新的 tinyfecvpn(by Yu Wang)'
+    mkdir tinyfecvpn && \
+    wget https://gist.githubusercontent.com/1-1-2/4009f064cf994ecbe0b0cf87a2c15599/raw/tinyfecVPN.Makefile -O tinyfecvpn/Makefile
+    echo '从 douo 那里拉取 tinyfecvpn 的 GUI'
+    git clone --depth 1 https://github.com/douo/luci-app-tinyfecvpn.git
+
+    echo '从 kuoruan 那里拉取 kcptun 的 GUI'
+    git clone --depth 1 https://github.com/kuoruan/luci-app-kcptun.git
 
     cd ..
     # M2 END
