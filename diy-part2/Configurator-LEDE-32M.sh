@@ -26,7 +26,7 @@ modification() {
     find -type f -path '*/luci-lib-docker/Makefile' -print -exec sed -i 's#@(aarch64||arm||x86_64)##w /dev/stdout' {} \;
 }
 
-add_packages(){
+add_packages() {
     [ -e is_add_packages ] && echo Add packages is done already. && return 0
     
     # 修改一些依赖
