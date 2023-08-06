@@ -111,6 +111,8 @@ add_packages() {
     echo '还有依赖 nps 和 n2n'
     svn co https://github.com/immortalwrt/packages/trunk/net/nps feeds/packages/net/nps
     svn co https://github.com/immortalwrt/packages/trunk/net/n2n feeds/packages/net/n2n
+    echo '还有 tinyfecvpn(by Yu Wang)'
+    svn co https://github.com/immortalwrt/packages/trunk/net/tinyfecvpn feeds/packages/net/tinyfecvpn
     # M1 END
 
     # M2 START
@@ -128,6 +130,10 @@ add_packages() {
     wget https://raw.githubusercontent.com/lisaac/luci-app-diskman/master/applications/luci-app-diskman/Makefile -O luci-app-diskman/Makefile
     mkdir -p package/parted && \
     wget https://raw.githubusercontent.com/lisaac/luci-app-diskman/master/Parted.Makefile -O parted/Makefile
+    
+    # echo 'tinyfecvpn(by Yu Wang)'
+    # mkdir tinyfecvpn && \
+    # wget https://gist.githubusercontent.com/1-1-2/4009f064cf994ecbe0b0cf87a2c15599/raw/tinyfecVPN.Makefile -O tinyfecvpn/Makefile
 
     cd ..
     # M2 END
@@ -286,5 +292,7 @@ CONFIG_PACKAGE_luci-app-frpc=y
 CONFIG_PACKAGE_luci-app-unblockmusic=y
 # CONFIG_PACKAGE_luci-app-unblockmusic_INCLUDE_UnblockNeteaseMusic_Go=y
 # CONFIG_PACKAGE_luci-app-unblockmusic_INCLUDE_UnblockNeteaseMusic_NodeJS is not set
+
+CONFIG_PACKAGE_tinyfecvpn=y
 EOF
 }
