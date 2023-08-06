@@ -84,16 +84,17 @@ modification() {
     sed -i 's/services/network/w /dev/stdout' feeds/luci/applications/luci-app-nft-qos/luasrc/controller/nft-qos.lua
 }
 
-add_packages(){
+add_packages() {
     #=========================================
     # 两种方式（没有本质上的区别）：
     # M1. 从别的(类)OpenWrt源码仓库部分借用，放到feeds文件夹(通常为feeds/luci)
     # M2. 拉取专门的luci包到package文件夹（注意 /package 与 /feeds/packages 的区别）
-    # M3. 修正语言名（zh-cn -> zh_Hans），更新feeds索引，安装feeds
+    # 
+    # 注意：加包后，需要创建语言名的硬链接（zh-cn -> zh_Hans），update&install feeds
     #=========================================
-    [ -e is_add_packages ] && echo Add packages is done already. && return 0
+    [ -e is_add_packages ] && echo "已进行过加包操作，不再执行" && return 0
     
-    # M1
+    # M1 START
     echo '从 lean 那里借个 luci-app-vsftpd'
     svn co https://github.com/coolsnowwolf/luci/trunk/applications/luci-app-vsftpd feeds/luci/applications/luci-app-vsftpd
     echo '还有依赖 vsftpd-alt'
@@ -110,9 +111,9 @@ add_packages(){
     echo '还有依赖 nps 和 n2n'
     svn co https://github.com/immortalwrt/packages/trunk/net/nps feeds/packages/net/nps
     svn co https://github.com/immortalwrt/packages/trunk/net/n2n feeds/packages/net/n2n
+    # M1 END
 
-
-    # M2
+    # M2 START
     cd package
 
     # echo '从 Hyy2001X 那里借一个改好的 luci-app-npc'
@@ -129,6 +130,7 @@ add_packages(){
     wget https://raw.githubusercontent.com/lisaac/luci-app-diskman/master/Parted.Makefile -O parted/Makefile
 
     cd ..
+    # M2 END
 
     # 修正依赖，调整菜单
     modification
@@ -215,7 +217,7 @@ CONFIG_PACKAGE_fdisk=y
 CONFIG_PACKAGE_e2fsprogs=y
 # ----------luci-app-hd-idle
 CONFIG_PACKAGE_luci-app-hd-idle=y
-# ----------Utilities-jq
+# ----------Utilities-json
 CONFIG_PACKAGE_jq=y
 # ----------Utilities-coreutils-base64
 CONFIG_PACKAGE_coreutils-base64=y

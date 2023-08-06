@@ -89,8 +89,8 @@ jobs:
 
         # 时间戳，组成Artifact的文件名
         date +"%Y%m%d%H%M"
-        # echo "::set-output name=TimeStamp::$(date +"%Y%m%d%H%M")"
-        echo "TimeStamp=$(date +"%Y.%m.%d-%H%M")" >> $GITHUB_OUTPUT
+        # echo "::set-output name=TimeStamp::$(date +"%Y%m%d-%H%M")"
+        echo "TimeStamp=$(date +"%Y%m%d-%H%M")" >> $GITHUB_OUTPUT
 
         # 打印序列信息和目录
         echo '====================序列内容===================='
@@ -403,6 +403,8 @@ jobs:
 
     - name: SSH Debug
       uses: mxschmitt/action-tmate@v3
+      with:
+        limit-access-to-actor: false
       if: ${{ failure() }}
 
   delete-workflow-run:
