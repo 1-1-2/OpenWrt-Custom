@@ -120,6 +120,7 @@ add_packages() {
     svn co https://github.com/immortalwrt/luci/trunk/applications/luci-app-n2n feeds/luci/applications/luci-app-n2n
     svn co https://github.com/immortalwrt/luci/trunk/applications/luci-app-nps feeds/luci/applications/luci-app-nps
     svn co https://github.com/immortalwrt/luci/trunk/applications/luci-app-vsftpd feeds/luci/applications/luci-app-vsftpd
+    svn co https://github.com/immortalwrt/luci/trunk/applications/luci-app-speederv2 feeds/luci/applications/luci-app-speederv2
     echo '== 还有依赖 n2n'
     svn co https://github.com/immortalwrt/packages/trunk/net/n2n feeds/packages/net/n2n
     # echo '从 Hyy2001X 那里借一个改好的 luci-app-npc(kenzo中已间接引用)'
