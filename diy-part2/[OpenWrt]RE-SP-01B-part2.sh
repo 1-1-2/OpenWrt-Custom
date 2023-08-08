@@ -23,6 +23,7 @@ mod_default_config(){
     #=========================================
 
     # C1
+    echo
     echo '修改后台地址为 192.168.199.1'
     sed -i 's/192.168.1.1/192.168.199.1/g' package/base-files/files/bin/config_generate
 
@@ -44,6 +45,7 @@ mod_default_config(){
 }
 
 target_inf() {
+    echo -e '\n=====================检查路径======================='
     echo -n '[diy-part2.sh]当前表显路径：' && pwd
     echo -n '[diy-part2.sh]当前物理路径：' && pwd -P
     #=========================================
@@ -52,20 +54,20 @@ target_inf() {
     gist_base='https://gist.githubusercontent.com/1-1-2/335dbc8e138f39fb8fe6243d424fe476/raw'
 
     # load dts
-    echo '载入 mt7621_jdcloud_re-sp-01b.dts'
+    echo '== 载入 mt7621_jdcloud_re-sp-01b.dts'
     curl --retry 3 -s --globoff "${gist_base}/mt7621_jdcloud_re-sp-01b.dts" -o target/linux/ramips/dts/mt7621_jdcloud_re-sp-01b.dts
     ls -l target/linux/ramips/dts/mt7621_jdcloud_re-sp-01b.dts
 
     # fix2 + fix4.2
-    echo '应用 mt7621.mk.re-sp-01b.patch'
+    echo '== 应用 mt7621.mk.re-sp-01b.patch'
     curl --retry 3 -s "${gist_base}/mt7621.mk.re-sp-01b.patch" | patch target/linux/ramips/image/mt7621.mk
     
     # fix3 + fix5.2
-    echo '应用 02_network.re-sp-01b.patch'
+    echo '== 应用 02_network.re-sp-01b.patch'
     curl --retry 3 -s "${gist_base}/02_network.re-sp-01b.patch" | patch target/linux/ramips/mt7621/base-files/etc/board.d/02_network
     
     # fix5.1
-    echo '应用 system.sh.re-sp-01b.patch'
+    echo '== 应用 system.sh.re-sp-01b.patch'
     curl --retry 3 -s "${gist_base}/system.sh.re-sp-01b.patch" | patch package/base-files/files/lib/functions/system.sh
 
     #=========================================
@@ -106,7 +108,8 @@ fi
 # 移除行首的空格和制表符
 sed -i 's/^[ \t]*//g' .config
 # make defconfig
+echo "=====================已生成 .config 文件====================="
 # diff .config default.config --color
 
 # diff的返回值1会导致github actions出错，用这个来盖过去
-echo "[脚本完成] diy-part2.sh 结束，已生成 .config 文件"
+echo "=====================diy-part2.sh 结束====================="
