@@ -1,85 +1,109 @@
 # -*- coding: utf-8 -*-
 """
-Created on Tue Jul 12 20:21:05 2022
-
+Created at Tue Jul 12 20:21:05 2022
+Modified at Mon Aug 07 23:31:44 2023
 @author: USN
 """
 
-import glob
+
+def merge_acc_keys(ori_dict, sorted_keys):
+    # merge into lines
+    sorted_lines = list()
+    for each_key in sorted_keys:
+        sorted_lines.append(each_key + '\n')
+        sorted_lines.extend([i + '\n' for i in ori_dict[each_key]])
+
+    return sorted_lines
 
 
-def make_seq_sorted(ori_file, full_return=False):
-    with open(ori_file, 'r') as f:
-        lines = f.readlines()
+def sort_keys(ori_keys):
+    # baseline first
+    if '@ Baseline' in ori_keys:
+        ori_keys.remove('@ Baseline')
+        sorted_keys = ['@ Baseline'] + sorted(ori_keys)
+    else:
+        sorted_keys = sorted(ori_keys)
 
+    return sorted_keys
+
+
+def sort_seq_file(ori_file):
     # seq to dict
     ori_dict = dict()
-    tmp_key = None
-    for line in lines:
-        if line.startswith('@'):
-            if ori_dict.get(line):
-                print('[check duplication]', line)
-            tmp_key = line
-            ori_dict[tmp_key] = list()
-        else:
-            ori_dict[tmp_key].append(line)
+    with open(ori_file, 'r') as f:
+        texts = f.read()
+    for each_set in texts.split('@')[1:]:
+        lines = each_set.splitlines()
+        title, configs = f"@{lines[0]}", lines[1:]
+        if ori_dict.get(title):
+            print('[发现重复标题]', title)
+        configs.sort()
+        ori_dict[title] = configs
 
     # sort keys
     ori_keys = list(ori_dict.keys())
+    sorted_keys = sort_keys(ori_keys)
 
-    # sort lines acc2 keys
-    sorted_lines = list()
-    sorted_keys = sorted(ori_keys)
-    for each_key in sorted_keys:
-        sorted_lines.append(each_key)
-        sorted_lines.extend(sorted(ori_dict[each_key]))
-
-    if full_return:
-        return {'lines': lines,
-                'ori_dict': ori_dict,
-                'sorted_lines': sorted_lines,
-                'sorted_keys': sorted_keys}
-    else:
-        return sorted_lines
+    return {'file': ori_file,
+            'ori_dict': ori_dict,
+            'sorted_keys': sorted_keys}
 
 
-seqList = list(set(glob.glob('*.ini')) - set(glob.glob('*_sorted.ini')))
-sorted_seq_dict = dict()
-for each in seqList:
-    with open(each[:-4] + '_sorted.ini', 'w') as f:
-        tmp = make_seq_sorted(each, full_return=True)
-        sorted_seq_dict[each] = tmp
-        f.writelines(tmp['sorted_lines'])
+if __name__ == '__main__':
+    # 排序，结果写入*_sorted.ini
+    # 同时以排序前文件名为key，内容为value存到AIO
+    all_dict = dict()
+    parted_list = ["both.ini", "lean's lede.unique.ini", "openwrt.unique.ini"]
+    seq_list = ["lean's lede.ini", "openwrt.ini"]
 
-# 懒得抽象了。。先这样吧
+    print(f"[1]parted_list:{parted_list}\n[2]seq_list:{seq_list}")
+    while True:
+        try:
+            selection = input('执行哪个序列:')
+            if selection == '1':
+                tg_list = parted_list
+            elif selection == '2':
+                tg_list = seq_list
+            else:
+                continue
+            break
+        except:
+            print('请只输入一个数字.')
+
+    for each in tg_list:
+        with open(each[:-4] + '_sorted.ini', 'w') as f:
+            tmp = sort_seq_file(each)
+            all_dict[each] = tmp
+            lines = merge_acc_keys(tmp['ori_dict'], tmp['sorted_keys'])
+            f.writelines(lines)
+
+    # make_diff()
+
+
 def make_diff():
-    a = [set(each['sorted_keys']) for each in sorted_seq_dict.values()]
-    b = a[0]
-    c = a[1]
-    tmp = list()
+    lede_dict = all_dict["lean's lede.ini"]
+    openwrt_dict = all_dict["openwrt.ini"]
+
+    lede_keys = set(lede_dict['sorted_keys'])
+    openwrt_keys = set(openwrt_dict['sorted_keys'])
+
+    both_keys = lede_keys & openwrt_keys
+    lede_unique_keys = lede_keys - openwrt_keys
+    openwrt_unique_keys = openwrt_keys - lede_keys
+
     with open('both.lede.txt', 'w') as f:
-        for each_key in sorted(list(b & c)):
-            tmp.append(each_key)
-            tmp.extend(sorted_seq_dict[seqList[0]]['ori_dict'][each_key])
-        f.writelines(tmp)
+        lines = merge_acc_keys(lede_dict['ori_dict'], sorted(both_keys))
+        f.writelines(lines)
 
-    tmp = list()
     with open('both.openwrt.txt', 'w') as f:
-        for each_key in sorted(list(b & c)):
-            tmp.append(each_key)
-            tmp.extend(sorted_seq_dict[seqList[1]]['ori_dict'][each_key])
-        f.writelines(tmp)
+        lines = merge_acc_keys(openwrt_dict['ori_dict'], sorted(both_keys))
+        f.writelines(lines)
 
-    tmp = list()
     with open('openwrt.unique.txt', 'w') as f:
-        for each_key in sorted(list(c - b)):
-            tmp.append(each_key)
-            tmp.extend(sorted_seq_dict[seqList[1]]['ori_dict'][each_key])
-        f.writelines(tmp)
+        lines = merge_acc_keys(
+            openwrt_dict['ori_dict'], sorted(openwrt_unique_keys))
+        f.writelines(lines)
 
-    tmp = list()
     with open('lede.unique.txt', 'w') as f:
-        for each_key in sorted(list(b - c)):
-            tmp.append(each_key)
-            tmp.extend(sorted_seq_dict[seqList[0]]['ori_dict'][each_key])
-        f.writelines(tmp)
+        lines = merge_acc_keys(lede_dict['ori_dict'], sorted(lede_unique_keys))
+        f.writelines(lines)
