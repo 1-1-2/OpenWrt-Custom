@@ -52,6 +52,7 @@ modification() {
     # echo '[MOD]把 node 替换成 lean 的'
     # rm -rf feeds/packages/lang/node
     # svn co https://github.com/coolsnowwolf/packages/trunk/lang/node feeds/packages/lang/node
+    [ -d feeds/kenzo/upx ] && echo '删除 kenzo 引用的 coolsnowwolf 源的 upx' && rm -vrf feeds/kenzo/upx*
 
     echo '[FIX]PKG_USE_MIPS16已被openwrt主线弃用，修改外部包的 PKG_USE_MIPS16:=0 为 PKG_BUILD_FLAGS:=no-mips16'
     find -type f -name Makefile -exec sh -c '
@@ -80,7 +81,7 @@ modification() {
     change_entry services vpn feeds/kenzo/luci-app-npc/luasrc/controller/npc.lua
     change_entry services vpn feeds/kenzo/luci-app-udp2raw/files/luci/controller/udp2raw.lua
     change_entry services vpn feeds/luci/applications/luci-app-nps/luasrc/controller/nps.lua
-    change_entry services vpn package/luci-app-kcptun/luasrc/controller/kcptun.lua
+    # change_entry services vpn package/luci-app-kcptun/luasrc/controller/kcptun.lua
     change_entry services vpn package/luci-app-tinyfecvpn/files/luci/controller/tinyfecvpn.lua
 
     echo '把 luci-app-nft-qos 从 <services> 搬到 <network>'
@@ -99,41 +100,39 @@ add_packages() {
     [ -e is_add_packages ] && echo "已进行过加包操作，不再执行" && return 0
     
     # M1 START
-    echo '从 lean 那里借个 luci-app-vsftpd'
-    svn co https://github.com/coolsnowwolf/luci/trunk/applications/luci-app-vsftpd feeds/luci/applications/luci-app-vsftpd
-    echo '还有依赖 vsftpd-alt'
-    svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/vsftpd-alt package/lean/vsftpd-alt
     echo '从 lean 那里借个 luci-app-unblockmusic'
+    echo -e '备注：\ncoolsnowwolf的unblockmusic支持云解锁、Go和Nodejs\nUnblockNeteaseMusic的luci-app-unblockneteasemusic不支持Go'
     svn co https://github.com/coolsnowwolf/luci/trunk/applications/luci-app-unblockmusic feeds/luci/applications/luci-app-unblockmusic
-    echo '还有依赖 UnblockNeteaseMusic 和 UnblockNeteaseMusic-Go'
-    svn co https://github.com/coolsnowwolf/packages/trunk/multimedia/UnblockNeteaseMusic feeds/packages/multimedia/UnblockNeteaseMusic
-    svn co https://github.com/coolsnowwolf/packages/trunk/multimedia/UnblockNeteaseMusic-Go feeds/packages/multimedia/UnblockNeteaseMusic-Go
+    # echo '还有依赖 UnblockNeteaseMusic 和 UnblockNeteaseMusic-Go'
+    # svn co https://github.com/coolsnowwolf/packages/trunk/multimedia/UnblockNeteaseMusic feeds/packages/multimedia/UnblockNeteaseMusic
+    # svn co https://github.com/coolsnowwolf/packages/trunk/multimedia/UnblockNeteaseMusic-Go feeds/packages/multimedia/UnblockNeteaseMusic-Go
 
-    echo '从天灵那里借个 luci-app-nps 和 luci-app-n2n'
-    svn co https://github.com/immortalwrt/luci/trunk/applications/luci-app-nps feeds/luci/applications/luci-app-nps
+    echo '从天灵那里借个 luci-app-n2n, luci-app-nps, luci-app-vsftpd'
     svn co https://github.com/immortalwrt/luci/trunk/applications/luci-app-n2n feeds/luci/applications/luci-app-n2n
-    echo '还有依赖 nps 和 n2n'
-    svn co https://github.com/immortalwrt/packages/trunk/net/nps feeds/packages/net/nps
+    svn co https://github.com/immortalwrt/luci/trunk/applications/luci-app-nps feeds/luci/applications/luci-app-nps
+    svn co https://github.com/immortalwrt/luci/trunk/applications/luci-app-vsftpd feeds/luci/applications/luci-app-vsftpd
+    echo '还有依赖 n2n'
     svn co https://github.com/immortalwrt/packages/trunk/net/n2n feeds/packages/net/n2n
+    # echo '从 Hyy2001X 那里借一个改好的 luci-app-npc(kenzo中已间接引用)'
+    # svn co https://github.com/Hyy2001X/AutoBuild-Packages/trunk/luci-app-npc
+    # echo '还有依赖 nps(kenzo中已引用coolsnowwolf源)'
+    # svn co https://github.com/immortalwrt/packages/trunk/net/nps feeds/packages/net/nps
     # echo '还有 tinyfecvpn(by Yu Wang)'
     # svn co https://github.com/immortalwrt/packages/trunk/net/tinyfecvpn feeds/packages/net/tinyfecvpn
+    echo '还有依赖 udp2raw(by Yu Wang)'
+    svn co https://github.com/immortalwrt/packages/trunk/net/udp2raw feeds/packages/net/udp2raw
+
     # M1 END
 
     # M2 START
     cd package
-
-    # echo '从 Hyy2001X 那里借一个改好的 luci-app-npc'
-    # svn co https://github.com/Hyy2001X/AutoBuild-Packages/trunk/luci-app-npc
 
     echo '从 lean 那里借一个自动外存挂载 automount'
     svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/automount lean/automount
     sed -i 's/ +ntfs3-mount//w /dev/stdout' lean/automount/Makefile      # 去掉不存在的包
 
     echo '从 lisaac 那里加载 luci-app-diskman'
-    mkdir -p package/luci-app-diskman && \
-    wget https://raw.githubusercontent.com/lisaac/luci-app-diskman/master/applications/luci-app-diskman/Makefile -O luci-app-diskman/Makefile
-    mkdir -p package/parted && \
-    wget https://raw.githubusercontent.com/lisaac/luci-app-diskman/master/Parted.Makefile -O parted/Makefile
+    wget https://raw.githubusercontent.com/lisaac/luci-app-diskman/master/applications/luci-app-diskman/Makefile -P luci-app-diskman
     
     echo '从我的 gist 加载更新的 tinyfecvpn(by Yu Wang)'
     mkdir tinyfecvpn && \
@@ -141,8 +140,8 @@ add_packages() {
     echo '从 douo 那里拉取 tinyfecvpn 的 GUI'
     git clone --depth 1 https://github.com/douo/luci-app-tinyfecvpn.git
 
-    echo '从 kuoruan 那里拉取 kcptun 的 GUI'
-    git clone --depth 1 https://github.com/kuoruan/luci-app-kcptun.git
+    # echo '从 kuoruan 那里拉取 kcptun 的 GUI'
+    # git clone --depth 1 https://github.com/kuoruan/luci-app-kcptun.git
 
     cd ..
     # M2 END
