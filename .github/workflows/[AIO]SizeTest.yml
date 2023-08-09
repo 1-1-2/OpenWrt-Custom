@@ -334,12 +334,12 @@ jobs:
           # 补全默认值
           make defconfig
           # 分析配置文件是否包含补丁
-          subset_check=$(comm -23 <(sed '/@/d' "${patch_file}" | sort | uniq) <(sort .config | uniq) | tee patch.dup | head -1)
+          subset_check=$(comm -23 <(sed '/@/d' "${patch_file}" | sort | uniq) <(sort .config | uniq) | tee .notfound)
           if [[ -z $subset_check ]]; then
             echo 补丁是 .conifg 的子集
           else
             echo 补丁不是 .conifg 的子集！以下 patch 行未在 .config 中找到
-            echo $subset_check
+            cat .notfound
             echo "=====================EOF======================="
             echo "::warning title=Test ${test_no} ${title}:: Patch is not a subset of .config, please check..."
           fi
