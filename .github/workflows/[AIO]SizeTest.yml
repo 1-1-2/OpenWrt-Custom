@@ -114,9 +114,9 @@ jobs:
         # 输出分析结果
         echo "测试序列：共${lines_num}行，包含${tests_num}条测试任务"
         echo '====================标题清单===================='
-        echo '（序列格式： [序号] 标题所在行行号 ）'
+        echo '（序列格式： [测试序号]标题行行编号）'
         for i in $(seq ${tests_num}); do
-          echo -n "[$i] ${title_line_num_list[i-1]}"
+          echo -n "[$i]${title_line_num_list[i-1]}p "
         done
         echo
 
@@ -304,7 +304,10 @@ jobs:
         test_no=$((First_Job_No-1))                           # 轮次计数器初始化，因为一开始就++所以先-1
         for patch_file in config_seq/patch*
         do
-          start_time=$(date +%s)    # 计时起点
+          # 计时起点，启动打点计时器
+          start_time=$(date +%s)
+          ( while true; do echo "...Timer.$[ $(date +%s)-${start_time} ]s" >&2 && sleep 20; done ) &
+          pid_timer=$!
 
           title=$(head "${patch_file}" -n1)                   # 原汁原味的标题，保留所有特殊符号
           echo "[Test No.$((++test_no))] $title, start at $(date +"%Y-%m-%d %H:%M")"
@@ -375,7 +378,9 @@ jobs:
             echo "[Test $test_no] --Finished--" $(date +"%Y-%m-%d %H:%M")
           fi
 
-          end_time=$(date +%s)    # 计时终点
+          # 计时终点，退出打点计时器
+          kill -15 $pid_timer
+          end_time=$(date +%s)
           cost_time=$[ ${end_time}-${start_time} ]
           echo "==============================================="
           echo -ne "Start Time:\t${start_time}\nEnd Time:\t${end_time}\nCost Time:\t${cost_time}\n" | tee "${TEST_RESULT_DIR}/Timer.log"
