@@ -181,8 +181,9 @@ EOF
     # Luci
     #=========================================
     cat >> .config << EOF
-CONFIG_PACKAGE_luci=y
 CONFIG_LUCI_LANG_zh_Hans=y
+CONFIG_PACKAGE_luci-theme-bootstrap=y
+CONFIG_PACKAGE_luci=y
 EOF
     #=========================================
     # unset some default to avoid duplication
@@ -207,65 +208,57 @@ config_basic() {
     # 基础包和应用
     #=========================================
     cat >> .config << EOF
-# ----------select for openwrt
+# ----------Basic_external_drive
+CONFIG_PACKAGE_automount=y
+CONFIG_PACKAGE_kmod-usb3=y
+CONFIG_PACKAGE_luci-app-hd-idle=y
+CONFIG_PACKAGE_usbutils=y
+# ----------Basic_luci-app-ddns
 CONFIG_PACKAGE_ddns-scripts-cloudflare=y
-CONFIG_PACKAGE_luci-app-acl=y
-CONFIG_PACKAGE_luci-app-advanced=y
 CONFIG_PACKAGE_luci-app-ddns=y
+# ----------Basic_luci-cmd
+CONFIG_PACKAGE_luci-app-commands=y
+CONFIG_PACKAGE_luci-app-ttyd=y
+# ----------Basic_small_paks
+CONFIG_BUSYBOX_CONFIG_BASE64=y
+CONFIG_BUSYBOX_CUSTOM=y
+CONFIG_PACKAGE_jq=y
+CONFIG_PACKAGE_luci-app-advanced-reboot=y
+CONFIG_PACKAGE_luci-app-advanced=y
+CONFIG_PACKAGE_luci-app-uhttpd=y
+CONFIG_PACKAGE_luci-app-watchcat=y
+CONFIG_PACKAGE_luci-app-wifischedule=y
+CONFIG_PACKAGE_luci-app-wol=y
+# ----------Func_upnp
+CONFIG_PACKAGE_luci-app-upnp=y
+# ----------STAT_luci-app-statistics
+CONFIG_PACKAGE_luci-app-statistics=y
+# ----------Utilities_bind
+CONFIG_PACKAGE_bind-dig=y
+CONFIG_PACKAGE_bind-host=y
+# ----------Utilities_e2fsprogs
+CONFIG_PACKAGE_e2fsprogs=y
+# ----------Utilities_fdisk
+CONFIG_PACKAGE_fdisk=y
+# ----------Utilities_nettool
+CONFIG_PACKAGE_ca-certificates=y
+CONFIG_PACKAGE_ethtool=y
+CONFIG_PACKAGE_luci-app-iperf3-server=y
+CONFIG_PACKAGE_socat=y
+# ----------Utilities_parted
+CONFIG_PACKAGE_parted=y
+# ----------Basic_paks_openwrt
+CONFIG_PACKAGE_luci-app-acl=y
 CONFIG_PACKAGE_luci-app-ledtrig-rssi=y
 CONFIG_PACKAGE_luci-app-ledtrig-switch=y
 CONFIG_PACKAGE_luci-app-ledtrig-usbport=y
-CONFIG_PACKAGE_luci-app-statistics=y
-CONFIG_PACKAGE_luci-app-store=y
-CONFIG_PACKAGE_luci-app-upnp=y
-CONFIG_PACKAGE_luci-app-wol=y
 CONFIG_PACKAGE_luci-proto-wireguard=y
-CONFIG_PACKAGE_which=y
-# ----------Utilities-network
-CONFIG_PACKAGE_bind-dig=y
-CONFIG_PACKAGE_bind-host=y
-CONFIG_PACKAGE_ca-certificates=y
-CONFIG_PACKAGE_ethtool=y
-CONFIG_PACKAGE_socat=y
-# ----------automount from lean
-CONFIG_PACKAGE_automount=y
-CONFIG_PACKAGE_block-mount=y
-CONFIG_PACKAGE_kmod-fs-ext4=y
-CONFIG_PACKAGE_kmod-fs-exfat=y
-CONFIG_PACKAGE_kmod-fs-ntfs=y
-# ----------Utilities-usbutils
-CONFIG_PACKAGE_usbutils=y
-# ----------Kernel modules-USB Support-kmod-usb3
-CONFIG_DEFAULT_kmod-usb3=y
-# ----------Utilities-Disc-cfdisk&fdisk
-CONFIG_PACKAGE_cfdisk=y
-CONFIG_PACKAGE_fdisk=y
-# ----------Utilities-Filesystem-e2fsprogs
-CONFIG_PACKAGE_e2fsprogs=y
-# ----------luci-app-hd-idle
-CONFIG_PACKAGE_luci-app-hd-idle=y
-# ----------Utilities-json
-CONFIG_PACKAGE_jq=y
-# ----------Utilities-coreutils-base64
-CONFIG_PACKAGE_coreutils-base64=y
-# ----------luci-app-ksmbd
+# ----------NAS_luci-app-ksmbd
+# CONFIG_PACKAGE_luci-app-samba4 is not set
 CONFIG_PACKAGE_luci-app-ksmbd=y
-# ----------luci-app-commands
-CONFIG_PACKAGE_luci-app-commands=y
-# ----------luci-app-qos
-CONFIG_PACKAGE_luci-app-qos=y
-# ----------luci-app-nft-qos
-CONFIG_PACKAGE_luci-app-nft-qos=y
-# ----------luci-app-sqm
-CONFIG_PACKAGE_luci-app-sqm=y
-# ----------luci-app-ttyd
-CONFIG_PACKAGE_luci-app-ttyd=y
-# ----------luci-app-uhttpd
-CONFIG_PACKAGE_luci-app-uhttpd=y
-# ----------luci-theme-argon
+# ----------Theme_argon
 CONFIG_PACKAGE_luci-app-argon-config=y
 CONFIG_PACKAGE_luci-theme-argon=y
-CONFIG_PACKAGE_luci-theme-bootstrap=y
 EOF
 }
 
@@ -275,21 +268,48 @@ config_func() {
     # 功能包
     #=========================================
     cat >> .config << EOF
-# ----------luci-app-vsftpd
+# ----------NAS_luci-app-aria2
+CONFIG_PACKAGE_luci-app-aria2=m
+# ----------NAS_luci-vsftpd
 CONFIG_PACKAGE_luci-app-vsftpd=y
-# ----------luci-app-aria2
-CONFIG_PACKAGE_luci-app-aria2=y
-# ----------luci-app-VPNs
-CONFIG_PACKAGE_luci-app-n2n=y
-CONFIG_PACKAGE_luci-app-nps=y
-# ----------luci-app-transmission
-CONFIG_PACKAGE_luci-app-transmission=y
-# ----------luci-app-watchcat
-CONFIG_PACKAGE_luci-app-watchcat=y
-# ----------Utilities
-CONFIG_PACKAGE_iperf3=y
-CONFIG_PACKAGE_kcptun-client=y
+# ----------NET_PACKAGE_kcptun-client
+CONFIG_PACKAGE_kcptun-client=m
+# ----------PAK_tcpdump-mini
 CONFIG_PACKAGE_tcpdump-mini=y
+# ----------QOS_luci-app-nft-qos
+CONFIG_PACKAGE_luci-app-nft-qos=y
+# ----------QOS_luci-sqm
+CONFIG_PACKAGE_luci-app-sqm=y
+# ----------RPX_n2n
+CONFIG_PACKAGE_luci-app-n2n=y
+# ----------RPX_nps
+CONFIG_PACKAGE_luci-app-npc=m
+CONFIG_PACKAGE_luci-app-nps=m
+CONFIG_PACKAGE_npc=y
+# ----------STAT_luci-app-nlbwmon
+CONFIG_PACKAGE_luci-app-nlbwmon=m
+# ----------Test_ddns-go
+CONFIG_PACKAGE_luci-app-ddns-go=m
+# ----------Test_lucky
+CONFIG_PACKAGE_luci-app-lucky=m
+# ----------Utilities_cfdisk
+CONFIG_PACKAGE_cfdisk=y
+# ----------rmAD_luci-app-adguardhome
+CONFIG_PACKAGE_luci-app-adguardhome=m
+# ----------STAT_luci-app-vnstat2
+CONFIG_PACKAGE_luci-app-vnstat2=m
+# ----------Test_NATMap
+CONFIG_PACKAGE_luci-app-natmap=y
+# ----------Test_wangyu_UDPspeeder
+CONFIG_PACKAGE_UDPspeeder=y
+CONFIG_PACKAGE_luci-app-speederv2=y
+# ----------Test_wangyu_tinyfecVPN
+CONFIG_PACKAGE_luci-app-tinyfecvpn=y
+CONFIG_PACKAGE_tinyfecvpn=y
+# ----------Test_wangyu_udp2raw
+CONFIG_PACKAGE_luci-app-udp2raw=y
+CONFIG_PACKAGE_udp2raw=y
+
 EOF
 }
 
@@ -299,21 +319,15 @@ config_test() {
     # 测试域
     #=========================================
     cat >> .config << EOF
-# ----------luci-app-openclash
-CONFIG_PACKAGE_luci-app-openclash=y
-# ----------network-firewall-ip6tables-ip6tables-mod-nat
-# CONFIG_PACKAGE_ip6tables-mod-nat=y
-
-CONFIG_PACKAGE_luci-app-adblock=y
-CONFIG_PACKAGE_luci-app-diskman=y
-CONFIG_PACKAGE_luci-app-frpc=y
-# CONFIG_PACKAGE_luci-app-nlbwmon=y
-# CONFIG_PACKAGE_luci-app-tinyproxy=y
-
+# ----------Func_luci-app-tinyproxy
+CONFIG_PACKAGE_luci-app-tinyproxy=y
+# ----------Func_luci-app-wechatpush
+CONFIG_PACKAGE_luci-app-wechatpush=y
+# ----------Func_unblockmusic_Go
 CONFIG_PACKAGE_luci-app-unblockmusic=y
-# CONFIG_PACKAGE_luci-app-unblockmusic_INCLUDE_UnblockNeteaseMusic_Go=y
-# CONFIG_PACKAGE_luci-app-unblockmusic_INCLUDE_UnblockNeteaseMusic_NodeJS is not set
+CONFIG_PACKAGE_luci-app-unblockmusic_INCLUDE_UnblockNeteaseMusic_Go=m
+# ----------Test_luci-app-store
+CONFIG_PACKAGE_luci-app-store=y
 
-CONFIG_PACKAGE_tinyfecvpn=y
 EOF
 }
