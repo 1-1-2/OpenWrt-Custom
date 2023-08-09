@@ -189,8 +189,6 @@ EOF
     # unset some default to avoid duplication
     #=========================================
     cat >> .config << EOF
-# CONFIG_PACKAGE_luci-app-passwall_Transparent_Proxy is not set
-# CONFIG_PACKAGE_luci-app-passwall2_Transparent_Proxy is not set
 EOF
     #=========================================
     # use dnsmasq-full as default instead of
