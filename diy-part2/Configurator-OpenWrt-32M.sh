@@ -323,7 +323,7 @@ CONFIG_PACKAGE_luci-app-tinyproxy=y
 CONFIG_PACKAGE_luci-app-wechatpush=y
 # ----------Func_unblockmusic_Go
 CONFIG_PACKAGE_luci-app-unblockmusic=y
-CONFIG_PACKAGE_luci-app-unblockmusic_INCLUDE_UnblockNeteaseMusic_Go=m
+CONFIG_PACKAGE_luci-app-unblockmusic_INCLUDE_UnblockNeteaseMusic_Go=y
 # ----------Test_luci-app-store
 CONFIG_PACKAGE_luci-app-store=y
 
