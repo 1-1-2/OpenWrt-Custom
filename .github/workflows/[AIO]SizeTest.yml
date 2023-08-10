@@ -1,4 +1,5 @@
 name: Package Size Test
+run-name: Package Size Test [${{ inputs.CONFIG_BASE }}, No.${{ inputs.device_choice }}, @${{ inputs.commit_sha }}]
 
 on:
   workflow_dispatch:
@@ -307,7 +308,7 @@ jobs:
           # 计时起点，启动打点计时器
           start_time=$(date +%s)
           ( while true; do echo "...Timer.$[ $(date +%s)-${start_time} ]s" >&2 && sleep 20; done ) &
-          pid_timer=$!
+          TIMER_PID=$!
 
           title=$(head "${patch_file}" -n1)                   # 原汁原味的标题，保留所有特殊符号
           echo "[Test No.$((++test_no))] $title, start at $(date +"%Y-%m-%d %H:%M")"
@@ -378,8 +379,8 @@ jobs:
             echo "[Test $test_no] --Finished--" $(date +"%Y-%m-%d %H:%M")
           fi
 
-          # 计时终点，退出打点计时器
-          kill -15 $pid_timer
+          # 计时终点，关闭打点计时器
+          kill -15 $TIMER_PID
           end_time=$(date +%s)
           cost_time=$[ ${end_time}-${start_time} ]
           echo "==============================================="

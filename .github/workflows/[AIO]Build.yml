@@ -9,6 +9,7 @@
 #
 
 name: Build Image
+run-name: Build Image [${{ inputs.config_tag }}, No.${{ inputs.device_choice }}, @${{ inputs.commit_sha }}]
 
 on:
   repository_dispatch:
@@ -70,7 +71,7 @@ jobs:
         # notifications
         # echo "::set-output name=DEVICE_TAG::${DEVICE_TAG}"
         echo "DEVICE_TAG=${DEVICE_TAG}" >> $GITHUB_OUTPUT
-        echo "::notice title=Target::[No.${{ inputs.device_choice }}]${DEVICE_TAG} with ${{ inputs.config_tag }}.config"
+        echo "::notice title=Task Summary::Compile using the ${{ inputs.config_tag }}.config of device No.${{ inputs.device_choice }}(${DEVICE_TAG})"
        
         # 若指定了 commit 提个醒
         if [ "$USE_COMMIT_SHA" == "latest" ]; then
@@ -109,7 +110,7 @@ jobs:
     - name: Clone Source Code
       working-directory: /workdir
       run: |
-        df -hT $PWD
+        df -hT | tee /workdir/df.before
 
         git clone https://github.com/$REPO_USE -b $REPO_BRANCH openwrt
         ln -sf /workdir/openwrt $GITHUB_WORKSPACE/openwrt
@@ -150,7 +151,7 @@ jobs:
         # 使用脚本生成配置
         "$GITHUB_WORKSPACE/$DIY_P2_SH" ${{ inputs.config_tag }}
         echo ==============.config===============
-        [ -e .config ] && cat .config || echo 'No .config after custom configuration'
+        [ -e .config ] && cat .config || (echo '.config NOT FOUND!' && exit 1)
         echo ====================================
 
     - name: Download Packages
@@ -172,10 +173,10 @@ jobs:
 
         # 从DIY_P2_SH中截取型号信息
         grep '^CONFIG_TARGET.*DEVICE.*=y' .config | sed -r 's/.*DEVICE_(.*)=y/\1/' > DEVICE_NAME
-        [ -s DEVICE_NAME ] && echo "::notice title=Device@.config:: $(cat DEVICE_NAME)" && echo "DEVICE_NAME=$(cat DEVICE_NAME)" >> $GITHUB_ENV
-        echo ============diff.config=============
+        [ -s DEVICE_NAME ] && echo "::notice title=Target Name in .config:: $(cat DEVICE_NAME)" && echo "DEVICE_NAME=$(cat DEVICE_NAME)" >> $GITHUB_ENV
+        echo =============current .config DIFF default config=============
         ./scripts/diffconfig.sh
-        echo ====================================
+        echo ===========================EoDIFF============================
 
         # 下载包，如若出错生成警告
         # 一轮八线程
@@ -198,21 +199,41 @@ jobs:
     - name: Compile
       id: compile
       run: |
+        # 计时起点，启动打点计时器
+        start_time=$(date +%s)
+        ( while true; do echo "...Timer.$[ $(date +%s)-${start_time} ]s" >&2 && sleep 20; done ) &
+        TIMER_PID=$!
+
+        # 启动编译任务
         cd openwrt
-        echo -e "Initiate initiate. Try $(($(nproc)+1)) thread first..."
+        echo -e "Initiate Compilation. Try $(($(nproc)+1)) thread first..."
         make -j $(($(nproc)+1)) || make -j1 || make -j1 V=s.
-        echo "FILE_DATE=$(date +"%Y%m%d%H%M")" >> $GITHUB_ENV
-        mv -v .config bin/targets/*/*
+        echo "TimeStamp=$(date +"%Y%m%d-%H%M")" >> $GITHUB_ENV
+        # 复制配置文件到 bin/targets/[arch]/[subtarget]/ 目录，最终一并打包
+        SUBTARGET_FOLDER=$(realpath bin/targets/*/*)
+        cp -v .config ${SUBTARGET_FOLDER}/
+
+        # 计时终点，关闭打点计时器
+        kill -15 $TIMER_PID
+        end_time=$(date +%s)
+        cost_time=$[ ${end_time}-${start_time} ]
+        echo "==============================================="
+        echo -ne "Start Time:\t${start_time}\nEnd Time:\t${end_time}\nCost Time:\t${cost_time}\n" | tee ${SUBTARGET_FOLDER}/Timer.log
+        echo "==============================================="
 
     - name: Check Space Usage
       if: (!cancelled())
-      run: df -hT
+      run: |
+        echo "=======================BEFORE========================"
+        cat /workdir/df.before
+        echo "========================AFTER========================"
+        df -hT
 
     - name: Upload Bin Directory
       uses: actions/upload-artifact@main
       if: steps.compile.conclusion == 'success' && env.UPLOAD_BIN_DIR == 'true'
       with:
-        name: OpenWrt_bin_${{ env.DEVICE_NAME }}_${{ env.FILE_DATE }}
+        name: OpenWrt_bin_${{ env.DEVICE_NAME }}_${{ env.TimeStamp }}
         path: openwrt/bin
 
     - name: Organize Files
@@ -227,7 +248,7 @@ jobs:
       uses: actions/upload-artifact@main
       if: steps.organize.conclusion == 'success' && !cancelled()
       with:
-        name: OpenWrt_firmware_${{ env.DEVICE_NAME }}_${{ env.FILE_DATE }}
+        name: OpenWrt_firmware_${{ env.DEVICE_NAME }}_${{ env.TimeStamp }}
         path: ${{ env.FIRMWARE }}
 
     - name: Upload Using File-transfer
