@@ -24,22 +24,22 @@ mod_default_config(){
 
     # C1
     echo
-    echo '修改后台地址为 192.168.199.1'
-    sed -i 's/192.168.1.1/192.168.199.1/g' package/base-files/files/bin/config_generate
+    echo '[MOD] 修改后台地址为 192.168.199.1'
+    sed -i 's/192.168.1.1/192.168.199.1/w /dev/stdout' package/base-files/files/bin/config_generate
 
-    echo '修改时区为东八区'
-    sed -i "s/'UTC'/'CST-8'\n        set system.@system[-1].zonename='Asia\/Shanghai'/g" package/base-files/files/bin/config_generate
+    echo '[MOD] 修改时区为东八区'
+    sed -i "s/'UTC'/'CST-8'\n        set system.@system[-1].zonename='Asia\/Shanghai'/w /dev/stdout" package/base-files/files/bin/config_generate
 
-    echo '修改主机名为 JDC_Mark1'
-    sed -i 's/OpenWrt/JDC_Mark1/g' package/base-files/files/bin/config_generate
+    echo '[MOD] 修改主机名为 JDC_Mark1'
+    sed -i 's/OpenWrt/JDC_Mark1/w /dev/stdout' package/base-files/files/bin/config_generate
 
     # C2
-    echo '修改默认主题为老竭力的 argon'
+    echo '[MOD] 修改默认主题为老竭力的 argon'
     # sed -i 's/luci-theme-bootstrap/luci-theme-argonne/g' feeds/luci/collections/luci*/Makefile
-    sed -i 's/bootstrap/argon/g' feeds/luci/modules/luci-base/root/etc/config/luci
+    sed -i 's/bootstrap/argon/w /dev/stdout' feeds/luci/modules/luci-base/root/etc/config/luci
 
     # C3
-    echo '添加 OpenWrt 默认设置文件'
+    echo '[MOD] 添加 OpenWrt 默认设置文件'
     mkdir -p files/etc/uci-defaults
     cp -v "$sh_dir/[OpenWrt]CustomDefault.sh" files/etc/uci-defaults/99-Custom-Default
 }
@@ -54,20 +54,20 @@ target_inf() {
     gist_base='https://gist.githubusercontent.com/1-1-2/335dbc8e138f39fb8fe6243d424fe476/raw'
 
     # load dts
-    echo '== 载入 mt7621_jdcloud_re-sp-01b.dts'
+    echo '[+TARGET] 载入 mt7621_jdcloud_re-sp-01b.dts'
     curl --retry 3 -s --globoff "${gist_base}/mt7621_jdcloud_re-sp-01b.dts" -o target/linux/ramips/dts/mt7621_jdcloud_re-sp-01b.dts
     ls -l target/linux/ramips/dts/mt7621_jdcloud_re-sp-01b.dts
 
     # fix2 + fix4.2
-    echo '== 应用 mt7621.mk.re-sp-01b.patch'
+    echo '[+TARGET] 应用 mt7621.mk.re-sp-01b.patch'
     curl --retry 3 -s "${gist_base}/mt7621.mk.re-sp-01b.patch" | patch target/linux/ramips/image/mt7621.mk
     
     # fix3 + fix5.2
-    echo '== 应用 02_network.re-sp-01b.patch'
+    echo '[+TARGET] 应用 02_network.re-sp-01b.patch'
     curl --retry 3 -s "${gist_base}/02_network.re-sp-01b.patch" | patch target/linux/ramips/mt7621/base-files/etc/board.d/02_network
     
     # fix5.1
-    echo '== 应用 system.sh.re-sp-01b.patch'
+    echo '[+TARGET] 应用 system.sh.re-sp-01b.patch'
     curl --retry 3 -s "${gist_base}/system.sh.re-sp-01b.patch" | patch package/base-files/files/lib/functions/system.sh
 
     #=========================================
@@ -108,8 +108,8 @@ fi
 # 移除行首的空格和制表符
 sed -i 's/^[ \t]*//g' .config
 # make defconfig
-echo "=====================已生成 .config 文件====================="
 # diff .config default.config --color
 
 # diff的返回值1会导致github actions出错，用这个来盖过去
-echo "=====================diy-part2.sh 结束====================="
+echo "=====================已生成 .config 文件，diy-part2.sh 结束====================="
+echo

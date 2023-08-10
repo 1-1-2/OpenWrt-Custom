@@ -49,14 +49,14 @@ modification() {
             -e '\#^CONFIGURE_ARGS:= \\#a\	$(if $(findstring mips,$(NODEJS_CPU)), $(if $(CONFIG_SOFT_FLOAT),--with-mips-float-abi=soft)) \\' \
             Makefile > Makefile.mod
         diff -u2 Makefile Makefile.mod
-        echo "=====================EOdiff======================="
+        echo "=====================EoDIFF======================="
         mv -f Makefile.mod Makefile
         cd -
     fi
     # echo '[MOD] 把 node 替换成 lean 的'
     # rm -rf feeds/packages/lang/node
     # svn co https://github.com/coolsnowwolf/packages/trunk/lang/node feeds/packages/lang/node
-    [ -d feeds/kenzo/upx ] && echo '删除 kenzo 引用的 coolsnowwolf 源的 upx' && rm -vrf feeds/kenzo/upx*
+    [ -d feeds/kenzo/upx ] && echo '[RM] 删除 kenzo 引用的 coolsnowwolf 源的 upx' && rm -vrf feeds/kenzo/upx*
 
     echo
     echo '[FIX] PKG_USE_MIPS16已被openwrt主线弃用，修改外部包的 PKG_USE_MIPS16:=0 为 PKG_BUILD_FLAGS:=no-mips16'
@@ -70,14 +70,14 @@ modification() {
     # 修改入口
     change_entry() {
         if [ -f "$3" ]; then
-            echo "将 $(basename "$3" | cut -d. -f1) 从 $1 移动到 $2" [$3]
+            echo "将 $(basename "$3" | cut -d. -f1) 从 <$1> 移动到 <$2>" [$3]
             sed -i "s/$1/$2/w /dev/stdout" "$3"
         else
             echo 找不到文件: $3
         fi
     }
     echo
-    echo 'luci-app-vsftpd 定义了一级菜单 <nas>，'
+    echo 'luci-app-vsftpd 定义了一级菜单 <nas>'
     change_entry services nas feeds/luci/applications/luci-app-ksmbd/root/usr/share/luci/menu.d/luci-app-ksmbd.json
     change_entry services nas feeds/luci/applications/luci-app-hd-idle/root/usr/share/luci/menu.d/luci-app-hd-idle.json
     change_entry services nas feeds/luci/applications/luci-app-aria2/root/usr/share/luci/menu.d/luci-app-aria2.json
@@ -160,10 +160,10 @@ add_packages() {
     # 修正依赖，调整菜单
     modification
     echo '=====================修改结束======================='
-    echo '[强制] 更新索引，装载软件包'
+    echo '[强制] 更新索引并装载软件包'
     ./scripts/feeds update -ifa
     ./scripts/feeds install -a
-    echo '=====================装载结束======================='
+    echo '=====================重载结束======================='
 
     # 已修改标志（其实也就DEBUG的时候有用）
     touch is_add_packages
