@@ -61,100 +61,116 @@ modification() {
     echo
     echo '[FIX] PKG_USE_MIPS16已被openwrt主线弃用，修改外部包的 PKG_USE_MIPS16:=0 为 PKG_BUILD_FLAGS:=no-mips16'
     find -type f -name Makefile -exec sh -c '
-        if grep -q "PKG_USE_MIPS16:=0" "$1"; then
-            echo -n "[$1] "
-            sed -i "s/PKG_USE_MIPS16:=0/PKG_BUILD_FLAGS:=no-mips16/w /dev/stdout" "$1"
-        fi
-    ' sh {} \;
+        if grep -q "PKG_USE_MIPS16:=0" "$0"; then
+            echo -n "[$0] "
+            sed -i "s/PKG_USE_MIPS16:=0/PKG_BUILD_FLAGS:=no-mips16/w /dev/stdout" "$0"
+        fi' {} \;
 
     # 修改入口
     change_entry() {
-        if [ -f "$3" ]; then
-            echo "将 $(basename "$3" | cut -d. -f1) 从 <$1> 移动到 <$2>" [$3]
-            sed -i "s/$1/$2/w /dev/stdout" "$3"
-        else
-            echo 找不到文件: $3
-        fi
+        [ "$#" -lt 3 ] && echo "[ch_entry_error] 需要至少3个参数：旧入口、新入口和目录路径" && return 1
+        [ ! -d "$3" ] && echo "目录不存在：$3" && return 1
+        
+        old_entry="$1"
+        new_entry="$2"
+        echo -e "\n[MOD] 将 $(echo "$3" | grep -o 'luci-app[^/]*') 从 <$old_entry> 移动到 <$new_entry> [$3]"
+        
+        find "$3" ! -path "*.svn*" -type f \
+            -exec grep -q "$old_entry" {} \; -exec \
+                sh -c 'echo "\n== 修改入口记录: [$0]"; sed -i "s/$1/$2/w /dev/stdout" "$0"' \
+                    {} "$old_entry" "$new_entry" \;
     }
     echo
     echo 'luci-app-vsftpd 定义了一级菜单 <nas>'
-    change_entry services nas feeds/luci/applications/luci-app-ksmbd/root/usr/share/luci/menu.d/luci-app-ksmbd.json
-    change_entry services nas feeds/luci/applications/luci-app-hd-idle/root/usr/share/luci/menu.d/luci-app-hd-idle.json
-    change_entry services nas feeds/luci/applications/luci-app-aria2/root/usr/share/luci/menu.d/luci-app-aria2.json
-    change_entry services nas feeds/luci/applications/luci-app-transmission/root/usr/share/luci/menu.d/luci-app-transmission.json
+    change_entry services nas feeds/luci/applications/luci-app-aria2
+    change_entry services nas feeds/luci/applications/luci-app-hd-idle
+    change_entry services nas feeds/luci/applications/luci-app-ksmbd
+    change_entry services nas feeds/luci/applications/luci-app-transmission
 
     echo
     echo 'luci-app-n2n 定义了一级菜单 <VPN>'
-    change_entry services vpn feeds/kenzo/luci-app-npc/luasrc/controller/npc.lua
-    change_entry services vpn feeds/kenzo/luci-app-udp2raw/files/luci/controller/udp2raw.lua
-    change_entry services vpn feeds/luci/applications/luci-app-nps/luasrc/controller/nps.lua
-    # change_entry services vpn package/luci-app-kcptun/luasrc/controller/kcptun.lua
-    change_entry services vpn package/luci-app-tinyfecvpn/files/luci/controller/tinyfecvpn.lua
+    change_entry services vpn feeds/kenzo/luci-app-npc
+    change_entry services vpn feeds/kenzo/luci-app-udp2raw
+    change_entry services vpn package/immortalwrt/luci-app-nps
+    change_entry services vpn package/immortalwrt/luci-app-speederv2
+    change_entry services vpn package/luci-app-tinyfecvpn
+    # change_entry services vpn package/luci-app-kcptun
 
     echo
-    echo '把 luci-app-nft-qos 从 <services> 搬到 <network>'
-    change_entry services network feeds/luci/applications/luci-app-nft-qos/luasrc/controller/nft-qos.lua
+    # echo '把 luci-app-nft-qos 从 <services> 搬到 <network>'
+    change_entry services network feeds/luci/applications/luci-app-nft-qos
     echo "=====================End Of Entry Change======================="
 }
 
 add_packages() {
     #=========================================
-    # 两种方式（没有本质上的区别）：
-    # M1. 从别的(类)OpenWrt源码仓库部分借用，放到feeds文件夹(通常为feeds/luci)
-    # M2. 拉取专门的luci包到package文件夹（注意 /package 与 /feeds/packages 的区别）
+    # 两种方式：
+    # M1. 拉取软件源码包放到feeds文件夹，如luci-app放到feeds/luci/
+    # M2. 拉取软件源码包放到package文件夹，可以参考feeds再分源创建不同的文件夹
     # 
-    # 注意：加包后，需要创建语言名的硬链接（zh-cn -> zh_Hans），update&install feeds
+    # 大概原理：
+    # 1. ./script/feeds install时会将feeds中的包在package/feeds中创建硬链接
+    # 
+    # 注意：
+    # 1. luci包须include feeds/luci.mk，某些包(如immortalwrt)引用的luci.mk是相对路径的，需要修正
+    # 2. 部分包，需要创建语言名的硬链接（zh-cn -> zh_Hans），update&install feeds
     #=========================================
     [ -e is_add_packages ] && echo "已进行过加包操作，不再执行" && return 0
     
     # M1 START
     echo '一、向 feeds 里加点东西'
-    echo '== 从 lean 那里借个 luci-app-unblockmusic'
-    echo -e '备注：\ncoolsnowwolf的unblockmusic支持云解锁、Go和Nodejs\nUnblockNeteaseMusic的luci-app-unblockneteasemusic不支持Go'
-    svn co https://github.com/coolsnowwolf/luci/trunk/applications/luci-app-unblockmusic feeds/luci/applications/luci-app-unblockmusic
-    # echo '还有依赖 UnblockNeteaseMusic 和 UnblockNeteaseMusic-Go'
-    # svn co https://github.com/coolsnowwolf/packages/trunk/multimedia/UnblockNeteaseMusic feeds/packages/multimedia/UnblockNeteaseMusic
-    # svn co https://github.com/coolsnowwolf/packages/trunk/multimedia/UnblockNeteaseMusic-Go feeds/packages/multimedia/UnblockNeteaseMusic-Go
-
-    echo '== 从天灵那里借个 luci-app-n2n, luci-app-nps, luci-app-vsftpd'
-    svn co https://github.com/immortalwrt/luci/trunk/applications/luci-app-n2n feeds/luci/applications/luci-app-n2n
-    svn co https://github.com/immortalwrt/luci/trunk/applications/luci-app-nps feeds/luci/applications/luci-app-nps
-    svn co https://github.com/immortalwrt/luci/trunk/applications/luci-app-vsftpd feeds/luci/applications/luci-app-vsftpd
-    svn co https://github.com/immortalwrt/luci/trunk/applications/luci-app-speederv2 feeds/luci/applications/luci-app-speederv2
-    echo '== 还有依赖 n2n'
-    svn co https://github.com/immortalwrt/packages/trunk/net/n2n feeds/packages/net/n2n
-    # echo '从 Hyy2001X 那里借一个改好的 luci-app-npc(kenzo中已间接引用)'
-    # svn co https://github.com/Hyy2001X/AutoBuild-Packages/trunk/luci-app-npc
-    # echo '还有依赖 nps(kenzo中已引用coolsnowwolf源)'
-    # svn co https://github.com/immortalwrt/packages/trunk/net/nps feeds/packages/net/nps
-    # echo '还有 tinyfecvpn(by Yu Wang)'
-    # svn co https://github.com/immortalwrt/packages/trunk/net/tinyfecvpn feeds/packages/net/tinyfecvpn
-    echo '== 还有依赖 udp2raw(by Yu Wang)'
-    svn co https://github.com/immortalwrt/packages/trunk/net/udp2raw feeds/packages/net/udp2raw
-
+    cd feeds && echo "...Entering `pwd`"
+    echo "=====================End Of feeds modification=======================" && cd ..
     # M1 END
 
     # M2 START
-    echo '一、向 package 里加点东西'
-    cd package
-
-    echo '== 从 lean 那里借一个自动外存挂载 automount'
+    echo '二、向 package 里加点Makefile'
+    cd package && echo "...Entering `pwd`"
+    echo
+    echo '## From coolsnowwolf'
+    echo '== 从酷雪狼(lean)那里借个自动外存挂载 automount, luci-app-unblockmusic'
     svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/automount lean/automount
-    sed -i 's/ +ntfs3-mount//w /dev/stdout' lean/automount/Makefile      # 去掉不存在的包
-
+    echo -e '备注：\ncoolsnowwolf的unblockmusic支持云解锁、Go和Nodejs\nUnblockNeteaseMusic的luci-app-unblockneteasemusic不支持Go'
+    svn co https://github.com/coolsnowwolf/luci/trunk/applications/luci-app-unblockmusic lean/luci-app-unblockmusic
+    # echo '还有依赖 UnblockNeteaseMusic 和 UnblockNeteaseMusic-Go'
+    # svn co https://github.com/coolsnowwolf/packages/trunk/multimedia/UnblockNeteaseMusic lean/UnblockNeteaseMusic
+    # svn co https://github.com/coolsnowwolf/packages/trunk/multimedia/UnblockNeteaseMusic-Go lean/UnblockNeteaseMusic-Go
+    echo
+    echo '## From immortalwrt'
+    echo '== 从天灵那里借个 luci-app-n2n, luci-app-nps, luci-app-vsftpd'
+    svn co https://github.com/immortalwrt/luci/trunk/applications/luci-app-n2n immortalwrt/luci-app-n2n
+    svn co https://github.com/immortalwrt/luci/trunk/applications/luci-app-nps immortalwrt/luci-app-nps
+    svn co https://github.com/immortalwrt/luci/trunk/applications/luci-app-vsftpd immortalwrt/luci-app-vsftpd
+    svn co https://github.com/immortalwrt/luci/trunk/applications/luci-app-speederv2 immortalwrt/luci-app-speederv2
+    echo '== 还有依赖 n2n'
+    svn co https://github.com/immortalwrt/packages/trunk/net/n2n immortalwrt/net/n2n
+    # echo '从 Hyy2001X 那里借一个改好的 luci-app-npc(kenzo中已间接引用)'
+    # svn co https://github.com/Hyy2001X/AutoBuild-Packages/trunk/luci-app-npc immortalwrt/luci-app-npc
+    # echo '还有依赖 nps(kenzo中已引用coolsnowwolf源)'
+    # svn co https://github.com/immortalwrt/packages/trunk/net/nps immortalwrt/net/nps
+    # echo '还有 tinyfecvpn(by Yu Wang)'
+    # svn co https://github.com/immortalwrt/packages/trunk/net/tinyfecvpn immortalwrt/net/tinyfecvpn
+    echo '== 还有依赖 udp2raw(by Yu Wang)'
+    svn co https://github.com/immortalwrt/packages/trunk/net/udp2raw immortalwrt/net/udp2raw
+    echo
+    echo '## From OTHERS'
     echo '== 从 lisaac 那里加载 luci-app-diskman'
     wget -nv https://raw.githubusercontent.com/lisaac/luci-app-diskman/master/applications/luci-app-diskman/Makefile -P luci-app-diskman
-    
+    echo
     echo '== 从我的 gist 加载更新的 tinyfecvpn(by Yu Wang)'
     mkdir tinyfecvpn && \
     wget -nv https://gist.githubusercontent.com/1-1-2/4009f064cf994ecbe0b0cf87a2c15599/raw/tinyfecVPN.Makefile -O tinyfecvpn/Makefile
+    echo
     echo '== 从 douo 那里拉取 tinyfecvpn 的 GUI'
     git clone --depth 1 https://github.com/douo/luci-app-tinyfecvpn.git
-
-    # echo '从 kuoruan 那里拉取 kcptun 的 GUI'
+    # echo
+    # echo '== 从 kuoruan 那里拉取 kcptun 的 GUI'
     # git clone --depth 1 https://github.com/kuoruan/luci-app-kcptun.git
 
-    cd ..
+    # 修正luci依赖
+    find . -name Makefile -exec grep -q "../../luci.mk" {} \; -exec \
+        sh -c 'echo "\n== 修正luci依赖: [$0]"; sed -i "s#../../luci.mk#\$(TOPDIR)/feeds/luci/luci.mk#w /dev/stdout" "$0"' {} \;
+    echo "=====================End Of package modification=======================" && cd ..
     # M2 END
 
     # 修正依赖，调整菜单
@@ -246,6 +262,12 @@ CONFIG_PACKAGE_socat=y
 # ----------Utilities_parted
 CONFIG_PACKAGE_parted=y
 # ----------Basic_paks_openwrt
+CONFIG_PACKAGE_collectd-mod-disk=y
+CONFIG_PACKAGE_collectd-mod-dns=y
+CONFIG_PACKAGE_collectd-mod-ping=y
+CONFIG_PACKAGE_collectd-mod-processes=y
+CONFIG_PACKAGE_collectd-mod-sensors=y
+CONFIG_PACKAGE_collectd-mod-tcpconns=y
 CONFIG_PACKAGE_luci-app-acl=y
 CONFIG_PACKAGE_luci-app-ledtrig-rssi=y
 CONFIG_PACKAGE_luci-app-ledtrig-switch=y

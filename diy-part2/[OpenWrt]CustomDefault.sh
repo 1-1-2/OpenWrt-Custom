@@ -22,5 +22,7 @@ sed -i 's#downloads.openwrt.org#mirrors.cloud.tencent.com/openwrt#g' /etc/opkg/d
 # sed -i '/set wireless.radio${devidx}.disabled/d' /lib/wifi/mac80211.sh
 
 echo 'hsts=0' > /root/.wgetrc
+[ -d /mnt/mmcblk0/ ] && ln -s /mnt/mmcblk0 /root/emmc
+echo '/root' > /lib/upgrade/keep.d/home
 
 exit 0
