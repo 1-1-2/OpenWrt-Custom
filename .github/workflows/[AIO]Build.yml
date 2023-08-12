@@ -24,7 +24,7 @@ on:
         type: choice
         required: true
         description: '选择配置版本'
-        default: 'clean'
+        default: 'func'
         options:
           - clean
           - basic
