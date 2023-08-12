@@ -21,18 +21,24 @@ on:
         default: 5
         type: number
       config_tag:
-        description: '选择配置的版本(clean|basic|func|test)'
+        type: choice
+        required: true
+        description: '选择配置版本'
+        default: 'clean'
+        options:
+          - clean
+          - basic
+          - func
+          - test
+      commit_sha:
+        description: '使用指定的commit(可选)'
         required: false
-        default: 'func'
+        default: 'latest'
       use_cache:
         description: '尝试使用缓存的tool和toolchain'
         required: false
         default: true
         type: boolean
-      commit_sha:
-        description: '使用指定的commit(可选)'
-        required: false
-        default: 'latest'
       ssh:
         description: '编译前进行SSH调试'
         required: false
@@ -168,7 +174,7 @@ jobs:
           echo "自定义配置(${{ inputs.config_tag }})不是 .conifg 的子集！以下配置行未在 .config 中找到"
           cat .notfound
           echo "=====================EOF======================="
-          echo "::warning title=Test ${test_no} ${title}:: Custom config is not a subset of .config, please check..."
+          echo "::warning title=Config fault::Custom config is not a subset of .config, please check..."
         fi
 
         # 从DIY_P2_SH中截取型号信息

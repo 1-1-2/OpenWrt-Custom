@@ -10,18 +10,24 @@ on:
         default: 5
         type: number
       CONFIG_BASE:
-        description: '基准配置版本(clean|basic|func|test)'
-        required: false
+        type: choice
+        required: true
+        description: '选择基准配置版本'
         default: 'clean'
+        options:
+          - clean
+          - basic
+          - func
+          - test
+      COMMIT_SHA:
+        description: '使用指定的commit(可选)'
+        required: false
+        default: 'latest'
       use_cache:
         description: '尝试使用缓存的tool和toolchain'
         required: false
         default: true
         type: boolean
-      COMMIT_SHA:
-        description: '使用指定的commit(可选)'
-        required: false
-        default: 'latest'
       TEST_PER_JOB_MAX:
         description: '单作业最大测试数(免费用户并行作业数上限为20)'
         required: false
@@ -352,7 +358,7 @@ jobs:
           # 根据第一节管道返回值判断编译结果
           if [ ${PIPESTATUS[0]} -ne 0 ]; then
             # Exception
-            echo "::error title=Test ${test_no} ${title}:: Error(s) occurred during compile, please check..."
+            echo "::error title=Config fault[${test_no} ${title}]:: Error(s) occurred during compile, please check..."
             touch "${TEST_RESULT_DIR}/test_failed"
 
             # 保留配置文件
