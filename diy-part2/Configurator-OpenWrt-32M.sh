@@ -235,8 +235,11 @@ CONFIG_PACKAGE_luci-app-commands=y
 CONFIG_PACKAGE_luci-app-ttyd=y
 # ----------Basic_small_paks
 CONFIG_BUSYBOX_CONFIG_BASE64=y
+CONFIG_BUSYBOX_CONFIG_SENDMAIL=y
 CONFIG_BUSYBOX_CUSTOM=y
+CONFIG_PACKAGE_fping=y
 CONFIG_PACKAGE_jq=y
+CONFIG_PACKAGE_mailsend=y
 CONFIG_PACKAGE_luci-app-advanced-reboot=y
 CONFIG_PACKAGE_luci-app-advanced=y
 CONFIG_PACKAGE_luci-app-uhttpd=y
