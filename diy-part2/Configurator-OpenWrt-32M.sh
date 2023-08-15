@@ -22,7 +22,12 @@ EOF
 
 modification() {
     # 一些可能必要的修改
-
+    echo '[MOD] 把家目录也添加到备份路径'
+    echo '/root' > package/base-files/files/lib/upgrade/keep.d/home
+    echo
+    echo '[FIX] 开机创建 /dev/fd --> /proc/self/fd'
+    sed -i '\#exit#iln -nsf /proc/self/fd /dev/fd' package/base-files/files/etc/rc.local
+    cat package/base-files/files/etc/rc.local
     echo
     echo '[FIX] 创建硬链接，解决无法正确识别出简体中文语言包的问题'
     # ref: https://github.com/ysc3839/luci-proto-minieap/pull/2
