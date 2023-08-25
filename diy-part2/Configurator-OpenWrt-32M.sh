@@ -211,14 +211,6 @@ EOF
     #=========================================
     cat >> .config << EOF
 EOF
-    #=========================================
-    # use dnsmasq-full as default instead of
-    # dnsmasq to avoid potential conflicts
-    #=========================================
-    cat >> .config << EOF
-# CONFIG_PACKAGE_dnsmasq is not set
-CONFIG_PACKAGE_dnsmasq-full=y
-EOF
 }
 
 config_basic() {
