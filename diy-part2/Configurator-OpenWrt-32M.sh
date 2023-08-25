@@ -298,7 +298,7 @@ CONFIG_PACKAGE_kcptun-client=m
 # ----------PAK_tcpdump-mini
 CONFIG_PACKAGE_tcpdump-mini=y
 # ----------QOS_luci-app-nft-qos
-CONFIG_PACKAGE_luci-app-nft-qos=y
+CONFIG_PACKAGE_luci-app-nft-qos=m
 # ----------QOS_luci-sqm
 CONFIG_PACKAGE_luci-app-sqm=y
 # ----------RPX_n2n
