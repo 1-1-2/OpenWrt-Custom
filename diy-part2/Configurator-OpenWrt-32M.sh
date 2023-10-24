@@ -316,6 +316,7 @@ CONFIG_PACKAGE_luci-app-lucky=m
 CONFIG_PACKAGE_cfdisk=y
 # ----------rmAD_luci-app-adguardhome
 CONFIG_PACKAGE_luci-app-adguardhome=m
+# CONFIG_PACKAGE_luci-app-adguardhome_INCLUDE_binary is not set
 # ----------STAT_luci-app-vnstat2
 CONFIG_PACKAGE_luci-app-vnstat2=m
 # ----------Test_NATMap
