@@ -194,14 +194,14 @@ config_clean() {
     #=========================================
     # Stripping options
     #=========================================
-    cat >> .config << EOF
+    cat << EOF
 CONFIG_STRIP_KERNEL_EXPORTS=y
 # CONFIG_USE_MKLIBS is not set
 EOF
     #=========================================
     # Luci
     #=========================================
-    cat >> .config << EOF
+    cat << EOF
 CONFIG_LUCI_LANG_zh_Hans=y
 CONFIG_PACKAGE_luci-theme-bootstrap=y
 CONFIG_PACKAGE_luci=y
@@ -209,7 +209,7 @@ EOF
     #=========================================
     # unset some default to avoid duplication
     #=========================================
-    cat >> .config << EOF
+    cat << EOF
 EOF
 }
 
@@ -218,7 +218,7 @@ config_basic() {
     #=========================================
     # 基础包和应用
     #=========================================
-    cat >> .config << EOF
+    cat << EOF
 # ----------Basic_external_drive
 CONFIG_PACKAGE_automount=y
 CONFIG_PACKAGE_kmod-usb3=y
@@ -287,7 +287,7 @@ config_func() {
     #=========================================
     # 功能包
     #=========================================
-    cat >> .config << EOF
+    cat << EOF
 # ----------NAS_luci-app-aria2
 CONFIG_PACKAGE_luci-app-aria2=m
 # ----------NAS_luci-vsftpd
@@ -339,7 +339,7 @@ config_test() {
     #=========================================
     # 测试域
     #=========================================
-    cat >> .config << EOF
+    cat << EOF
 # ----------Func_luci-app-tinyproxy
 CONFIG_PACKAGE_luci-app-tinyproxy=y
 # ----------Func_luci-app-wechatpush

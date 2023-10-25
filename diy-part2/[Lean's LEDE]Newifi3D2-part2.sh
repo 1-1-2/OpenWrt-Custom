@@ -38,12 +38,10 @@ mod_default_config(){
 }
 
 target_inf() {
-    echo -n '[diy-part2.sh]当前表显路径：' && pwd
-    echo -n '[diy-part2.sh]当前物理路径：' && pwd -P
     #=========================================
     # Target System
     #=========================================
-    cat >> .config << EOF
+    cat << EOF
 CONFIG_TARGET_ramips=y
 CONFIG_TARGET_ramips_mt7621=y
 CONFIG_TARGET_ramips_mt7621_DEVICE_d-team_newifi-d2=y
@@ -55,30 +53,34 @@ EOF
 #↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓下面写配置编写逻辑↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
 
 add_packages
-# 清理重开，从零开始
-rm -fv ./.config*
-target_inf
 mod_default_config
 
+# 重新制作.config文件
+echo -e '\n=====================路径检查======================='
+echo -n '[diy-part2.sh]当前表显路径：' && pwd
+echo -n '[diy-part2.sh]当前物理路径：' && pwd -P
+rm -fv ./.config*
+
+target_inf
 # 根据输入参数增加内容
 if [[ $1 == clean* ]]; then
     echo "[洁净配置] 仅该型号的默认功能"
-    config_clean
+    config_clean >> .config
 elif [[ $1 == basic* ]]; then
     echo "[基本配置] 包含一些基础增强"
-    config_basic
+    config_basic >> .config
 elif [[ $1 == test* ]]; then
     echo "[测试配置] 包含所有功能，外加测试包"
-    config_test
+    config_test >> .config
 else
     echo "[全功能配置] 包含常用的所有功能、插件"
-    config_func
+    config_func >> .config
 fi
 
 # 移除行首的空格和制表符
 sed -i 's/^[ \t]*//g' .config
+    
 # make defconfig
 # diff .config default.config --color
-
 # diff的返回值1会导致github actions出错，用这个来盖过去
-echo "[脚本完成] diy-part2.sh 结束，已生成 .config 文件"
+echo "=====================已生成 .config 文件，diy-part2.sh 结束====================="
