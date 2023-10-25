@@ -358,7 +358,7 @@ jobs:
           # 根据第一节管道返回值判断编译结果
           if [ ${PIPESTATUS[0]} -ne 0 ]; then
             # Exception
-            echo "::error title=Config fault[${test_no} ${title}]:: Error(s) occurred during compile, please check..."
+            echo "::error title=[${test_no} ${title}] Test Failed:: Error(s) occurred during compile, please check..."
             touch "${TEST_RESULT_DIR}/test_failed"
 
             # 保留配置文件
