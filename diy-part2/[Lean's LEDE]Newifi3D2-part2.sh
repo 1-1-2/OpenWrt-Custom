@@ -61,7 +61,7 @@ echo -n '[diy-part2.sh]当前表显路径：' && pwd
 echo -n '[diy-part2.sh]当前物理路径：' && pwd -P
 rm -fv ./.config*
 
-target_inf
+target_inf >> .config
 # 根据输入参数增加内容
 if [[ $1 == clean* ]]; then
     echo "[洁净配置] 仅该型号的默认功能"
