@@ -305,7 +305,7 @@ CONFIG_PACKAGE_luci-app-n2n=y
 # ----------RPX_nps
 CONFIG_PACKAGE_luci-app-npc=m
 CONFIG_PACKAGE_luci-app-nps=m
-CONFIG_PACKAGE_npc=y
+CONFIG_PACKAGE_npc=m
 # ----------STAT_luci-app-nlbwmon
 CONFIG_PACKAGE_luci-app-nlbwmon=m
 # ----------Test_ddns-go
