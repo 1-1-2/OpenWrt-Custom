@@ -2,11 +2,12 @@
 
 ## 设备型号
 
-| [Model](https://openwrt.org/toh) | SoC               | CPU MHz | Flash MB | RAM MB | WLAN Hardware                        | WLAN2.4 | WLAN5.0 | 100M ports | Gbit ports | Modem | USB    |
-| :------------------------------- | :---------------- | :------ | :------- | :----- | :----------------------------------- | :------ | :------ | :--------- | :--------- | :---- | :----- |
-| HC5661                           | MediaTek MT7620A  | 580     | 16       | 128    | MediaTek MT7620A                     | b/g/n   | -       | 5          | -          | -     | -      |
-| Newifi D2 (Newifi3)              | MediaTek MT7621AT | 880     | 32       | 512    | MediaTek MT7603EN, MediaTek MT7612EN | b/g/n   | a/n/ac  | -          | 5          | -     | 1x 3.0 |
-| RE-SP-01B                        | MediaTek MT7621AT | 880     | 32       | 512    | MediaTek MT7603, MediaTek MT7615     | b/g/n   | a/n/ac  | -          | 3          | -     | 1x 2.0 |
+| [Model](https://openwrt.org/toh) | SoC               | CPU MHz | Flash MB | RAM MB | WLAN Hardware                         | WLAN2.4 | WLAN5.0   | 100M ports | Gbit ports | Modem | USB    |
+| :------------------------------- | :---------------- | :------ | :------- | :----- | :------------------------------------ | :------ | :-------- | :--------- | :--------- | :---- | :----- |
+| HC5661                           | MediaTek MT7620A  | 580     | 16       | 128    | MediaTek MT7620A                      | b/g/n   | -         | 5          | -          | -     | -      |
+| Newifi D2 (Newifi3)              | MediaTek MT7621AT | 880     | 32       | 512    | MediaTek MT7603EN, MediaTek MT7612EN  | b/g/n   | a/n/ac    | -          | 5          | -     | 1x 3.0 |
+| RE-SP-01B                        | MediaTek MT7621AT | 880     | 32       | 512    | MediaTek MT7603, MediaTek MT7615      | b/g/n   | a/n/ac    | -          | 3          | -     | 1x 2.0 |
+| RE-CP-02                         | MediaTek MT7621AT | 880     | 16       | 512    | MediaTek MT7975DN, MediaTek MT7905DAN | b/g/n   | a/n/ac/ax | -          | 4          | -     | -      |
 
 
 
@@ -17,6 +18,7 @@
 | HC5661              | ✅                                                   |                                               |
 | Newifi D2 (Newifi3) | ✅                                                   | ✅                                             |
 | RE-SP-01B           | ✅                                                   | ✅                                             |
+| RE-CP-02            |                                                     | ✅([引导说明](RE-CP-02.md))                    |
 
 暂无更多适配计划
 
