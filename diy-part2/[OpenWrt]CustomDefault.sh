@@ -25,4 +25,15 @@ echo 'hsts=0' > /root/.wgetrc
 [ -d /mnt/mmcblk0/ ] && [ ! -e /root/emmc ] && ln -s /mnt/mmcblk0 /root/emmc
 # echo '/root' > /lib/upgrade/keep.d/home
 
+# 为硬件NAT添加一个基于MAC的exclude
+grep -q 'offload_exclude' /etc/config/firewall || cat >> /etc/config/firewall << EOF
+config ipset
+	option name 'offload_exclude'
+	option family 'ipv4'
+	option comment '绕过HWNAT的设备MAC'
+	list match 'mac'
+EOF
+mkdir -p /overlay/upper/usr/share/firewall4/templates
+sed 's/\t\tmeta l4proto { tcp, udp } flow offload @ft;/{% if (fw4.default_option("flow_offloading_hw")): %}\n\t\tether saddr != @offload_exclude meta l4proto { tcp, udp } flow offload @ft comment "!fw4: Offload with exclude"\n{% endif %}\n{% if (!fw4.default_option("flow_offloading_hw")): %}\n\t\tmeta l4proto { tcp, udp } flow offload @ft comment "!fw4: Offload with no exclude"\n{% endif %}/' /rom/usr/share/firewall4/templates/ruleset.uc > /overlay/upper/usr/share/firewall4/templates/ruleset.uc
+
 exit 0

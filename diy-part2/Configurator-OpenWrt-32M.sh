@@ -149,6 +149,8 @@ add_packages() {
     svn co https://github.com/immortalwrt/luci/trunk/applications/luci-app-speederv2 immortalwrt/luci-app-speederv2
     echo '== 还有依赖 n2n'
     svn co https://github.com/immortalwrt/packages/trunk/net/n2n immortalwrt/net/n2n
+    echo '[MOD] 应用 n2n.init.patch'
+    curl --retry 3 -s "https://gist.githubusercontent.com/1-1-2/335dbc8e138f39fb8fe6243d424fe476/raw/n2n.init.patch" | patch immortalwrt/net/n2n/files/n2n.init
     # echo '从 Hyy2001X 那里借一个改好的 luci-app-npc(kenzo中已间接引用)'
     # svn co https://github.com/Hyy2001X/AutoBuild-Packages/trunk/luci-app-npc immortalwrt/luci-app-npc
     # echo '还有依赖 nps(kenzo中已引用coolsnowwolf源)'
