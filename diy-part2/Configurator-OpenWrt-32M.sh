@@ -134,23 +134,41 @@ add_packages() {
     echo
     echo '## From coolsnowwolf'
     echo '== 从酷雪狼(lean)那里借个自动外存挂载 automount, luci-app-unblockmusic'
-    svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/automount lean/automount
+    # svn co https://github.com/coolsnowwolf/lede/trunk/package/lean/automount lean/automount
+    # https://github.com/coolsnowwolf/lede/tree/master/package/lean/automount
+    wget --content-disposition https://codeload.github.com/coolsnowwolf/lede/zip/refs/heads/master
+    unzip lede-master.zip lede-master/package/lean/automount/*
+    mv -v lede-master/package/lean ./
+    rm -rf lede-master lede-master.zip
+    # svn co https://github.com/coolsnowwolf/luci/trunk/applications/luci-app-unblockmusic lean/luci-app-unblockmusic
+    # https://github.com/coolsnowwolf/luci/tree/master/applications/luci-app-unblockmusic
+    wget --content-disposition https://codeload.github.com/coolsnowwolf/luci/zip/refs/heads/master
+    unzip luci-master.zip luci-master/applications/luci-app-unblockmusic/*
+    mv -v luci-master/applications/luci-app-unblockmusic ./lean/
+    rm -rf luci-master luci-master.zip
     echo -e '备注：\ncoolsnowwolf的unblockmusic支持云解锁、Go和Nodejs\nUnblockNeteaseMusic的luci-app-unblockneteasemusic不支持Go'
-    svn co https://github.com/coolsnowwolf/luci/trunk/applications/luci-app-unblockmusic lean/luci-app-unblockmusic
     # echo '还有依赖 UnblockNeteaseMusic 和 UnblockNeteaseMusic-Go'
     # svn co https://github.com/coolsnowwolf/packages/trunk/multimedia/UnblockNeteaseMusic lean/UnblockNeteaseMusic
     # svn co https://github.com/coolsnowwolf/packages/trunk/multimedia/UnblockNeteaseMusic-Go lean/UnblockNeteaseMusic-Go
     echo
     echo '## From immortalwrt'
-    echo '== 从天灵那里借个 luci-app-n2n, luci-app-nps, luci-app-vsftpd'
-    svn co https://github.com/immortalwrt/luci/trunk/applications/luci-app-n2n immortalwrt/luci-app-n2n
-    svn co https://github.com/immortalwrt/luci/trunk/applications/luci-app-nps immortalwrt/luci-app-nps
-    svn co https://github.com/immortalwrt/luci/trunk/applications/luci-app-vsftpd immortalwrt/luci-app-vsftpd
-    svn co https://github.com/immortalwrt/luci/trunk/applications/luci-app-speederv2 immortalwrt/luci-app-speederv2
+    echo '== 从天灵那里借个 luci-app-n2n, luci-app-nps, luci-app-vsftpd, luci-app-speederv2'
+    # svn co https://github.com/immortalwrt/luci/trunk/applications/luci-app-n2n immortalwrt/luci-app-n2n
+    # svn co https://github.com/immortalwrt/luci/trunk/applications/luci-app-nps immortalwrt/luci-app-nps
+    # svn co https://github.com/immortalwrt/luci/trunk/applications/luci-app-vsftpd immortalwrt/luci-app-vsftpd
+    # svn co https://github.com/immortalwrt/luci/trunk/applications/luci-app-speederv2 immortalwrt/luci-app-speederv2
+    # https://github.com/immortalwrt/luci/blob/master/applications/*
+    wget --content-disposition https://codeload.github.com/immortalwrt/luci/zip/refs/heads/master
+    unzip luci-master.zip luci-master/applications/luci-app-n2n/* luci-master/applications/luci-app-nps/* luci-master/applications/luci-app-vsftpd/* luci-master/applications/luci-app-speederv2/*
+    mv -v luci-master/applications ./immortalwrt
+    rm -rf luci-master luci-master.zip
     echo '== 还有依赖 n2n'
-    svn co https://github.com/immortalwrt/packages/trunk/net/n2n immortalwrt/net/n2n
-    echo '[MOD] 应用 n2n.init.patch'
-    curl --retry 3 -s "https://gist.githubusercontent.com/1-1-2/335dbc8e138f39fb8fe6243d424fe476/raw/n2n.init.patch" | patch immortalwrt/net/n2n/files/n2n.init
+    # svn co https://github.com/immortalwrt/packages/trunk/net/n2n immortalwrt/net/n2n
+    # https://github.com/immortalwrt/packages/blob/master/*
+    wget --content-disposition https://codeload.github.com/immortalwrt/packages/zip/refs/heads/master
+    unzip packages-master.zip packages-master/net/n2n/*
+    # mv -v packages-master/net ./immortalwrt/net
+    # rm -rf packages-master packages-master.zip
     # echo '从 Hyy2001X 那里借一个改好的 luci-app-npc(kenzo中已间接引用)'
     # svn co https://github.com/Hyy2001X/AutoBuild-Packages/trunk/luci-app-npc immortalwrt/luci-app-npc
     # echo '还有依赖 nps(kenzo中已引用coolsnowwolf源)'
@@ -158,7 +176,12 @@ add_packages() {
     # echo '还有 tinyfecvpn(by Yu Wang)'
     # svn co https://github.com/immortalwrt/packages/trunk/net/tinyfecvpn immortalwrt/net/tinyfecvpn
     echo '== 还有依赖 udp2raw(by Yu Wang)'
-    svn co https://github.com/immortalwrt/packages/trunk/net/udp2raw immortalwrt/net/udp2raw
+    # svn co https://github.com/immortalwrt/packages/trunk/net/udp2raw immortalwrt/net/udp2raw
+    unzip packages-master.zip packages-master/net/udp2raw/*
+    mv -v packages-master/net ./immortalwrt/net
+    rm -rf packages-master packages-master.zip
+    echo '[MOD] 应用 n2n.init.patch'
+    curl --retry 3 -s "https://gist.githubusercontent.com/1-1-2/335dbc8e138f39fb8fe6243d424fe476/raw/n2n.init.patch" | patch immortalwrt/net/n2n/files/n2n.init
     echo
     echo '## From OTHERS'
     echo '== 从 lisaac 那里加载 luci-app-diskman'
