@@ -279,6 +279,10 @@ CONFIG_PACKAGE_bind-host=y
 CONFIG_PACKAGE_e2fsprogs=y
 # ----------Utilities_fdisk
 CONFIG_PACKAGE_fdisk=y
+# ----------Utilities_mtd
+CONFIG_PACKAGE_kmod-mtdram=y
+CONFIG_PACKAGE_kmod-block2mtd=y
+CONFIG_PACKAGE_kmod-loop=y
 # ----------Utilities_nettool
 CONFIG_PACKAGE_ca-certificates=y
 CONFIG_PACKAGE_ethtool=y
