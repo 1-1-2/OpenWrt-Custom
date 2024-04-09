@@ -255,6 +255,9 @@ CONFIG_PACKAGE_luci-app-ddns=y
 # ----------Basic_luci-cmd
 CONFIG_PACKAGE_luci-app-commands=y
 CONFIG_PACKAGE_luci-app-ttyd=y
+# ----------Basic_network
+# CONFIG_PACKAGE_wpad-basic-mbedtls is not set
+CONFIG_PACKAGE_wpad-mbedtls=y
 # ----------Basic_small_paks
 CONFIG_BUSYBOX_CONFIG_BASE64=y
 CONFIG_BUSYBOX_CONFIG_SENDMAIL=y
