@@ -2,31 +2,35 @@
 
 ## 设备型号
 
-| [Model](https://openwrt.org/toh) | SoC               | CPU MHz | Flash MB | RAM MB | WLAN Hardware                         | WLAN2.4  | WLAN5.0 | 100M ports | Gbit ports | Modem | USB    |
-| :------------------------------- | :---------------- | :------ | :------- | :----- | :------------------------------------ | :------- | :------ | :--------- | :--------- | :---- | :----- |
-| HC5661                           | MediaTek MT7620A  | 580     | 16       | 128    | MediaTek MT7620A                      | b/g/n    | -       | 5          | -          | -     | -      |
-| Newifi D2 (Newifi3)              | MediaTek MT7621AT | 880     | 32       | 512    | MediaTek MT7603EN, MediaTek MT7612EN  | b/g/n    | ac/n    | -          | 5          | -     | 1x 3.0 |
-| RE-SP-01B                        | MediaTek MT7621AT | 880     | 32       | 512    | MediaTek MT7603, MediaTek MT7615      | b/g/n    | ac/n    | -          | 3          | -     | 1x 2.0 |
-| RE-CP-02                         | MediaTek MT7621AT | 880     | 16       | 512    | MediaTek MT7975DN, MediaTek MT7905DAN | ax/b/g/n | ac/ax/n | -          | 4          | -     | -      |
+| [Model](https://openwrt.org/toh) | SoC               | CPU MHz | Flash MB | RAM MB | WLAN Hardware                         | WLAN2.4  | WLAN5.0 | 100M ports | Gbit ports | TF-slot | USB    |
+| :------------------------------- | :---------------- | :------ | :------- | :----- | :------------------------------------ | :------- | :------ | :--------- | :--------- | :------ | :----- |
+| HC5661                           | MediaTek MT7620A  | 580     | 16       | 128    | MediaTek MT7620A                      | b/g/n    | -       | 5          | -          | -       | -      |
+| Newifi D2 (Newifi3)              | MediaTek MT7621AT | 880     | 32       | 512    | MediaTek MT7603EN, MediaTek MT7612EN  | b/g/n    | ac/n    | -          | 5          | -       | 1x 3.0 |
+| RE-SP-01B                        | MediaTek MT7621AT | 880     | 32       | 512    | MediaTek MT7603, MediaTek MT7615      | b/g/n    | ac/n    | -          | 3          | -       | 1x 2.0 |
+| RE-CP-02                         | MediaTek MT7621AT | 880     | 16       | 512    | MediaTek MT7975DN, MediaTek MT7905DAN | ax/b/g/n | ac/ax/n | -          | 4          | Y       | -      |
 
 
 
 ## 适配系统
 
-| Model               | [Lean's LEDE](https://github.com/coolsnowwolf/lede) | [OpenWrt](https://github.com/openwrt/openwrt) |
-| ------------------- | --------------------------------------------------- | --------------------------------------------- |
-| HC5661              | ✅                                                   |                                               |
-| Newifi D2 (Newifi3) | ✅                                                   | ✅                                             |
-| RE-SP-01B           | ✅                                                   | ✅                                             |
-| RE-CP-02            |                                                     | ✅([引导说明](RE-CP-02.md))                    |
+| Model               | [Lean's LEDE](https://github.com/coolsnowwolf/lede) | [OpenWrt](https://github.com/openwrt/openwrt) | 备注                                     |
+| ------------------- | --------------------------------------------------- | --------------------------------------------- | ---------------------------------------- |
+| HC5661              | ✅                                                   | 🤪                                             | 弃坑，太弱鸡了，建议用 padavan           |
+| Newifi D2 (Newifi3) | ✅                                                   | ✅                                             |                                          |
+| RE-SP-01B           | ✅                                                   | ⭕                                             |                                          |
+| RE-CP-02            | 🤪                                                   | ⭕                                             | [非常规分区固件说明 - 鲁班](RE-CP-02.md) |
 
-暂无更多适配计划
+✅-与上游一致 | ⭕-基于上游适配 | 🤪-本库未配置
+
+
 
 ——如果能帮到你，那是我的荣幸——
 
+*暂无更多适配计划*
 
 
-#### 致谢
+
+## 致谢
 
 云编译模板源自 [P3TERX 的 Actions-OpenWrt](https://github.com/P3TERX/Actions-OpenWrt) Ver.[97697df](https://github.com/P3TERX/Actions-OpenWrt/tree/97697df385dc2036681aafed73afd2cd903632f1)
 
