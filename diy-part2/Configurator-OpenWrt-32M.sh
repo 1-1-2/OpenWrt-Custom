@@ -271,6 +271,10 @@ CONFIG_PACKAGE_luci-app-uhttpd=y
 CONFIG_PACKAGE_luci-app-watchcat=y
 CONFIG_PACKAGE_luci-app-wifischedule=y
 CONFIG_PACKAGE_luci-app-wol=y
+# ----------Driver_USB2TTL
+CONFIG_PACKAGE_kmod-usb-serial=m
+CONFIG_PACKAGE_kmod-usb-serial-pl2303=m
+CONFIG_PACKAGE_kmod-usb-serial-ch341=m
 # ----------Func_upnp
 CONFIG_PACKAGE_luci-app-upnp=y
 # ----------STAT_luci-app-statistics
