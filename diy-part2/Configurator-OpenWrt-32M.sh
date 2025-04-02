@@ -320,6 +320,10 @@ config_func() {
     # 功能包
     #=========================================
     cat << EOF
+# ----------Driver_USB2TTL
+CONFIG_PACKAGE_kmod-usb-serial=m
+CONFIG_PACKAGE_kmod-usb-serial-pl2303=m
+CONFIG_PACKAGE_kmod-usb-serial-ch341=m
 # ----------NAS_luci-app-aria2
 CONFIG_PACKAGE_luci-app-aria2=m
 # ----------NAS_luci-vsftpd
