@@ -7,6 +7,7 @@ case $1 in
         REPO_USE=coolsnowwolf/lede
         REPO_BRANCH=master
 #         COMMIT_SHA=latest
+        DEVICE_ARCH="ramips"
         DIY_P2_SH="diy-part2/[Lean's LEDE]HC5661-part2.sh"
         DEPENDS=$(curl -fsSL "https://gist.githubusercontent.com/1-1-2/38e424cd9da729f72fa4a495d23271ea/raw/lean's%2520lede")
         SEQ_FILE="testSeq/lean's lede.ini"
@@ -16,6 +17,7 @@ case $1 in
         REPO_USE=coolsnowwolf/lede
         REPO_BRANCH=master
 #         COMMIT_SHA=latest
+        DEVICE_ARCH="ramips"
         DIY_P2_SH="diy-part2/[Lean's LEDE]Newifi3D2-part2.sh"
         DEPENDS=$(curl -fsSL "https://gist.githubusercontent.com/1-1-2/38e424cd9da729f72fa4a495d23271ea/raw/lean's%2520lede")
         SEQ_FILE="testSeq/lean's lede.ini"
@@ -25,6 +27,7 @@ case $1 in
         REPO_USE=coolsnowwolf/lede
         REPO_BRANCH=master
 #         COMMIT_SHA=latest
+        DEVICE_ARCH="ramips"
         DIY_P2_SH="diy-part2/[Lean's LEDE]RE-SP-01B-part2.sh"
         DEPENDS=$(curl -fsSL "https://gist.githubusercontent.com/1-1-2/38e424cd9da729f72fa4a495d23271ea/raw/lean's%2520lede")
         SEQ_FILE="testSeq/lean's lede.ini"
@@ -34,6 +37,7 @@ case $1 in
         REPO_USE=openwrt/openwrt
         REPO_BRANCH=master
 #         COMMIT_SHA=latest
+        DEVICE_ARCH="ramips"
         DIY_P2_SH="diy-part2/[OpenWrt]Newifi3D2-part2.sh"
         DEPENDS=$(curl -fsSL "https://gist.githubusercontent.com/1-1-2/38e424cd9da729f72fa4a495d23271ea/raw/openwrt")
         SEQ_FILE="testSeq/openwrt.ini"
@@ -43,6 +47,7 @@ case $1 in
         REPO_USE=openwrt/openwrt
         REPO_BRANCH=master
 #         COMMIT_SHA=latest
+        DEVICE_ARCH="ramips"
         DIY_P2_SH="diy-part2/[OpenWrt]RE-SP-01B-part2.sh"
         DEPENDS=$(curl -fsSL "https://gist.githubusercontent.com/1-1-2/38e424cd9da729f72fa4a495d23271ea/raw/openwrt")
         SEQ_FILE="testSeq/openwrt.ini"
@@ -52,6 +57,7 @@ case $1 in
         REPO_USE=openwrt/openwrt
         REPO_BRANCH=master
 #         COMMIT_SHA=latest
+        DEVICE_ARCH="ramips"
         DIY_P2_SH="diy-part2/[OpenWrt]RE-CP-02-part2.sh"
         DEPENDS=$(curl -fsSL "https://gist.githubusercontent.com/1-1-2/38e424cd9da729f72fa4a495d23271ea/raw/openwrt")
         SEQ_FILE="testSeq/openwrt.ini"
@@ -77,6 +83,7 @@ DEVICE_TAG=${DEVICE_TAG}
 REPO_USE=${REPO_USE}
 REPO_BRANCH=${REPO_BRANCH}
 USE_COMMIT_SHA=${USE_COMMIT_SHA}
+DEVICE_ARCH=${DEVICE_ARCH}
 DIY_P2_SH=${DIY_P2_SH}
 DEPENDS=${DEPENDS}
 SEQ_FILE=${SEQ_FILE}

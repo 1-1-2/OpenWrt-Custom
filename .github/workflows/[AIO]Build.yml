@@ -129,9 +129,10 @@ jobs:
         fi
 
     - name: Cache
-      uses: klever1988/cachewrtbuild@main
+      uses: stupidloud/cachewrtbuild@main
       if: ${{ inputs.use_cache }}
       with:
+        mixkey: ${{ env.DEVICE_ARCH }}
         ccache: 'false'
         prefix: ${{ github.workspace }}/openwrt
         
@@ -177,7 +178,7 @@ jobs:
           echo "::warning title=Config fault::Custom config is not a subset of .config, please check..."
         fi
 
-        # 从DIY_P2_SH中截取型号信息
+        # 提示.config中的目标信息 供复核
         grep '^CONFIG_TARGET.*DEVICE.*=y' .config | sed -r 's/.*DEVICE_(.*)=y/\1/' > DEVICE_NAME
         [ -s DEVICE_NAME ] && echo "::notice title=Target Name in .config:: $(cat DEVICE_NAME)" && echo "DEVICE_NAME=$(cat DEVICE_NAME)" >> $GITHUB_ENV
         echo =============current .config DIFF default config=============
