@@ -63,7 +63,14 @@ case $1 in
         SEQ_FILE="testSeq/openwrt.ini"
         ;;
     7)
-        # undefined
+        DEVICE_TAG="Lean's LEDE - WS1408(WIP)"
+        REPO_USE=coolsnowwolf/lede
+        REPO_BRANCH=master
+#         COMMIT_SHA=latest
+        DEVICE_ARCH="arm"
+        DIY_P2_SH="diy-part2/[Lean's LEDE]WS1408-part2.sh"
+        DEPENDS=$(curl -fsSL "https://gist.githubusercontent.com/1-1-2/38e424cd9da729f72fa4a495d23271ea/raw/lean's%2520lede")
+        SEQ_FILE="testSeq/lean's lede.ini"
         ;;
     *)
         echo "input error"
