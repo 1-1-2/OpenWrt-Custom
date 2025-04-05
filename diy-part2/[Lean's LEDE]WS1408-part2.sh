@@ -45,9 +45,12 @@ target_patch() {
 
     diff $GITHUB_WORKSPACE/replace/meson8b.mk target/linux/amlogic/image/meson8b.mk
     cp -fv $GITHUB_WORKSPACE/replace/meson8b.mk target/linux/amlogic/image/meson8b.mk
-    
+
     diff $GITHUB_WORKSPACE/replace/Makefile target/linux/amlogic/Makefile
     cp -fv $GITHUB_WORKSPACE/replace/Makefile target/linux/amlogic/Makefile
+
+    cp -fv $GITHUB_WORKSPACE/replace/meson_V1.3.1330.dts target/linux/amlogic/files/arch/arm/boot/dts/meson8b-onecloud.dts
+    rm -f target/linux/amlogic/patches-6.1/902-use-system-LED-for-OpenWrt.patch
     
     # TODO
 }
