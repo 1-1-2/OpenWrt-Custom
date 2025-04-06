@@ -3,7 +3,7 @@ define Device/Default
   IMAGES := emmc.img
   KERNEL_DEPENDS = $$(wildcard $(DTS_DIR)/$$(DEVICE_DTS).dts)
   KERNEL_LOADADDR := 0x01080000
-  KERNEL_NAME := uImage
+  KERNEL_NAME := Image
   KERNEL := kernel-bin | uImage none
   PROFILES = Default $$(DEVICE_NAME)
 endef
