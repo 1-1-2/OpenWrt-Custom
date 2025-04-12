@@ -12,7 +12,7 @@
 
 # 载入闪存对应的DIY脚本
 sh_dir=$(dirname "$0")
-. $sh_dir/Configurator-OpenWrt-32M.sh
+. $sh_dir/Configurator-OpenWrt-16M.sh
 
 mod_default_config(){
     #=========================================
@@ -51,9 +51,8 @@ target_patch() {
     gist_base='https://gist.githubusercontent.com/1-1-2/335dbc8e138f39fb8fe6243d424fe476/raw'
 
     # load dts
-    echo '[+TARGET] 载入 mt7621_jdcloud_re-cp-02.dts'
-    curl --retry 3 -s --globoff "${gist_base}/mt7621_jdcloud_re-cp-02.dts" -o target/linux/ramips/dts/mt7621_jdcloud_re-cp-02.dts
-    ls -l target/linux/ramips/dts/mt7621_jdcloud_re-cp-02.dts
+    echo '[+TARGET] 应用 mt7621_jdcloud_re-cp-02.dts.target_patch'
+    curl --retry 3 -s "${gist_base}/mt7621_jdcloud_re-cp-02.dts.patch" | patch target/linux/ramips/dts/mt7621_jdcloud_re-cp-02.dts
 
     # fix2 + fix4.2
     echo '[+TARGET] 应用 mt7621.mk.re-cp-02.patch'

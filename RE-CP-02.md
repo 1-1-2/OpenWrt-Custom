@@ -68,26 +68,38 @@
 	2. 烧录夹带突起这一侧，接转换版1-4号引脚一侧
 	3. 转换版1号引脚，对照CH341a上丝印的图例中25XX这边的带白点的这个脚
 
-（这步可以跳过）使用软件：BinarySplitter（二进制文件提取工具）
-提取config分区：0x30000~0x40000
-提取factory分区（EEPROM）：0x40000~0x50000
+原厂固件要素表：
+0x50000~0x50DFF	EEPROM(3584 bytes)
+0x8FF00~0x8FFFF	SN/MAC(256 bytes)
 
 二、魔改Breed
 使用软件：WinHex
 1. 新建空白文件AX，大小192kb。按下“CTRL+L”，填充FF。
 2. 放入Breed：打开“breed-mt7621-creativebox-v1.bin”全选复制。在0x0处按下“CTRL+B”写入到文件A头部。
-3. 写入EEPROM：打开原厂固件“ALT+G”跳转到0x50000，在0x50000处按下“ALT+1”，在0x50E00处按下“ALT+2”，这部分是 factory 分区中的 EEPROM 的有效数据（大小=0xE00）其余都是0xFF的空值。在文件AX的0x20000处按下“CTRL+B”替换写入。
-4. 写入SN/MAC：跳转到原厂固件0x8FF00，按下“ALT+1”，在0x8FFFF处按下“ALT+2”，这部分是factory 分区中包含SN/MAC的部分（大小=0xFF）。在AX的0x28000处按下“CTRL+B”替换写入。此时 WAN MAC 在 0x8FFF4，LAN MAC在 0x8FFFA。
+3. 写入EEPROM：
+	原理：原厂固件的 0x50000~0x50DFF 部分（隶属 factory 分区）为 EEPROM 的有效数据（大小=0xE00=3584bytes=3.5KB），分区余下部分是空值 0xFF。
+	操作：原厂固件，“ALT+G”跳转0x50000，“ALT+1”标记选区头，跳转0x50DFF，“ALT+2”标记选区尾，“CTRL+C”复制。转到文件AX，“ALT+G”跳转 0x20000，“CTRL+B”覆写。
+4. 写入SN/MAC：
+	原理：原厂固件的 0x8FF00~0x8FFFF 部分（隶属 factory 分区）记录了 SN/MAC 数据（大小=0x100=256bytes=0.25KB）。WAN MAC 在 0x8FFF4，LAN MAC 在 0x8FFFA。
+	操作：原厂固件，“ALT+G”跳转0x8FF00，“ALT+1”标记选区头，跳转0x8FFFF，“ALT+2”标记选区尾，“CTRL+C”复制。转到文件AX，“ALT+G”跳转 0x28000，“CTRL+B”覆写。此时 WAN MAC 在 0x280F4~0x280F9，LAN MAC 在 0x280FA~0x280FF，格式为 raw hex
 5. 保存，获得初步魔改的Breed
 
 三、写入固件
 使用软件：NeoProgrammer、WinHex
-1. 擦除IC
-2. 写入魔改的Breed
-3. 拔掉编程器，通电LAN口上机，在Breed中启用环境变量【Breed内部】，重启。
-4. 在Breed中增加环境变量 autoboot.command=boot flash 0x30000
-5. 下载编程器固件，使用Winhex截取前192kb部分（0x0000-0x30000）
-6. 成功获得可引导固件，带EEPROM和MAC的 Breed。（大小 192KB）
+1. NeoProgrammer 擦除IC，写入魔改的Breed。
+2. 拔掉编程器，上电，LAN口上机打开192.168.1.1，进入Breed设置。
+3. 启用Breed环境变量，选择【Breed内部】，默认存储在0x2F000~0x30000段，确认，重启。
+4. 增加Breed环境变量 字段 autoboot.command，值 boot flash 0x30000，实现自定义引导。
+5. Breed备份编程器固件，此时将 sysupgrade 固件“CTRL+B”覆写至地址 0x30000，便可完成固件拼接，通过breed写回设备。
+6. 若使用Winhex截取前192kb部分（0x0000-0x30000）即为特定于本设备（包含 EEPROM 和 MAC 属性）、引导地址0x30000的 Breed（大小 192KB）
+
+四、测试：
+拔掉编程器
+上电亮红灯，192.168.1.1进入BREED
+刷入固件
+DONE
+
+⚠注意：openwrt中，mtd设备的分区布局可能由dts定义。要实现“充分利用闪存空间”的目标，在编译时需要按照本次魔改的各个地址修正dts！
 ```
 
 至此，这个基于 Breed “魔改” 的 Bootloader 的数据结构如下
@@ -108,11 +120,11 @@ BREED 限制环境变量起始地址必须高于 0x2f000
 
 换句话说，魔改获得的 Bootloader 对应地址段及内容物如下
 
-| 闪存地址段          | 分区 Label | 内容                        |
-| ------------------- | ---------- | --------------------------- |
-| 0x0000000-0x0020000 | u-boot     | breed-mt7621-creativebox-v1 |
-| 0x0020000-0x0030000 | Factory    | EEPROM、SN/MAC、Breed-env   |
-| 0x0030000-0x1000000 | firmware   | OpenWrt                     |
+| 闪存地址段          | 分区 Label | 内容                                               |
+| ------------------- | ---------- | -------------------------------------------------- |
+| 0x0000000-0x0020000 | u-boot     | breed-mt7621-creativebox-v1(patched for re-cp-02b) |
+| 0x0020000-0x0030000 | Factory    | EEPROM、SN/MAC、Breed-env                          |
+| 0x0030000-0x1000000 | firmware   | OpenWrt                                            |
 
 **此时有 16MiB-192KiB=16192KiB 的空间可以放系统**，基本实现了闪存的最大化利用。
 
