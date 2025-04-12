@@ -246,7 +246,6 @@ config_basic() {
     cat << EOF
 # ----------Basic_external_drive
 CONFIG_PACKAGE_automount=y
-CONFIG_PACKAGE_kmod-usb3=y
 CONFIG_PACKAGE_luci-app-hd-idle=y
 CONFIG_PACKAGE_usbutils=y
 # ----------Basic_luci-app-ddns
