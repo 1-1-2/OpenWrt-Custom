@@ -230,6 +230,7 @@ EOF
 CONFIG_LUCI_LANG_zh_Hans=y
 CONFIG_PACKAGE_luci-theme-bootstrap=y
 CONFIG_PACKAGE_luci=y
+CONFIG_PACKAGE_luci-compat=y
 EOF
     #=========================================
     # unset some default to avoid duplication
