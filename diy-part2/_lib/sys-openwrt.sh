@@ -39,6 +39,10 @@ modification() {
     find -type f -path '*/luci-theme-argon/Makefile' -print -exec sed -i 's/+wget\b/+wget-any/w /dev/stdout' {} \;
 
     echo
+    echo '[MOD] 去除 luci-i18n-clashoo-zh-cn 通过 select 反拉 clashoo'
+    find -type f -path '*/luci-app-clashoo/Makefile' -print -exec sed -i 's/DEPENDS:=+luci-app-clashoo\b/DEPENDS:=luci-app-clashoo/w /dev/stdout' {} \;
+
+    echo
     echo '[MOD] 去除 n2n 的 OpenSSL 依赖 '
     find -type f -path '*/n2n/Makefile' -print -exec sed -i -e 's/+libopenssl \+//' -e 's/USE_OPENSSL=ON/USE_OPENSSL=OFF/' -e 'w /dev/stdout' {} \;
 
